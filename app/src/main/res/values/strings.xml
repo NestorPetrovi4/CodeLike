@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Code Like</string>
     <string name="nmedia">NMedia!</string>
+    <string name="description_post_author_avatar">Post author avatar</string>
+    <string name="description_post_menu">Post menu</string>
+    <string name="textLiked">10</string>
+    <string name="textShared">5</string>
+    <string name="textViewOpen">5</string>
 </resources>
