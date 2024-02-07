@@ -2,6 +2,12 @@ reserve.md
 HELP.md
 .gradle
 build/
+caches/
+daemon/
+jdks/
+kotlin-profile/
+native/
+wrapper/
 
 ### STS ###
 .apt_generated
@@ -46,3 +52,4 @@ captures/
 
 ### Gradle ###
 !gradle/wrapper/gradle-wrapper.jar
+/caches/
