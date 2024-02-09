@@ -1,7 +1,9 @@
 package ru.netology.nmedia
 
+import PostViewModel
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.viewModels
 import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.dto.Post
 import java.math.RoundingMode
@@ -13,41 +15,31 @@ class MainActivity : AppCompatActivity() {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val post = Post(
-            1,
-            "Нетология. Университет интернет-профессий будущего",
-            "21 мая в 18:36",
-            "Привет, это новая Нетология! Когда-то Нетология начиналась с интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, разработке, аналитике и управлению. Мы растём сами и помогаем расти студентам: от новичков до уверенных профессионалов. Но самое важное остаётся с нами: мы верим, что в каждом уже есть сила, которая заставляет хотеть больше, целиться выше, бежать быстрее. Наша миссия — помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb",
-            999999, shared = 5
-        )
-        with(binding) {
-            author.text = post.author
-            published.text = post.published
-            content.text = post.content
-            textLiked.text = convertDigitMinimizedString(post.likes)
-            textShared.text = convertDigitMinimizedString(post.shared)
-            textViewOpen.text = convertDigitMinimizedString(post.viewOpen)
-            if (post.likedByMe) binding.imageHeart.setImageResource(R.drawable.ic_liked_24)
+        val viewModel: PostViewModel by viewModels()
+        viewModel.data.observe(this) { post ->
+            with(binding) {
+                author.text = post.author
+                published.text = post.published
+                content.text = post.content
+                textLiked.text = convertDigitMinimizedString(post.likes)
+                textShared.text = convertDigitMinimizedString(post.shared)
+                textViewOpen.text = convertDigitMinimizedString(post.viewOpen)
+                imageHeart.setImageResource(
+                    if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_like_24
+                )
+            }
         }
 
         binding.imageHeart?.setOnClickListener {
-            post.likedByMe = !post.likedByMe
-            if (post.likedByMe) {
-                post.likes++
-                binding.imageHeart.setImageResource(R.drawable.ic_liked_24)
-            } else {
-                post.likes--
-                binding.imageHeart.setImageResource(R.drawable.ic_like_24)
-            }
-            binding.textLiked.text = convertDigitMinimizedString(post.likes)
+            viewModel.like()
         }
 
         binding.imageShare?.setOnClickListener {
-            binding.textShared.text = convertDigitMinimizedString(++post.shared)
+            viewModel.shared()
         }
     }
 
-    fun convertDigitMinimizedString(value: Int): String {
+    private fun convertDigitMinimizedString(value: Int): String {
         val format = DecimalFormat("#.#")
         format.roundingMode = RoundingMode.DOWN
         if (value < 1000) {
