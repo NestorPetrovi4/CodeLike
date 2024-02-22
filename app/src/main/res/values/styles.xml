@@ -11,15 +11,12 @@
         <item name="android:minHeight">@dimen/icon_button_min_size</item>
     </style>
 
-    <style name="Widget.AppTheme.LikeCheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">
-        <item name="buttonTint">@color/like_checkbox_tint</item>
-        <item name="android:paddingStart">@dimen/icon_button_padding</item>
-    </style>
-
-    <style name="Widget.AppTheme.LikeButton" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+    <style name="Widget.Material3.Button.ElevatedButton" parent="Widget.Material3.Button.ElevatedButton.Icon">
         <item name="iconTint">@color/like_checkbox_tint</item>
         <item name="android:minWidth">@dimen/icon_button_min_size</item>
         <item name="android:minHeight">@dimen/icon_button_min_size</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textColor">"#989898"</item>
     </style>
 
 </resources>

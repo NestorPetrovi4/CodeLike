@@ -47,16 +47,14 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            textLiked.text = convertDigitMinimizedString(post.likes)
-            textShared.text = convertDigitMinimizedString(post.shared)
-            textViewOpen.text = convertDigitMinimizedString(post.viewOpen)
-            imageHeart.setImageResource(
-                if (post.likedByMe) R.drawable.ic_liked_24 else R.drawable.ic_like_24
-            )
-            imageHeart?.setOnClickListener {
+            buttonHeart.text = convertDigitMinimizedString(post.likes)
+            buttonShare.text = convertDigitMinimizedString(post.shared)
+            buttonView.text = convertDigitMinimizedString(post.viewOpen)
+            buttonHeart.isChecked = post.likedByMe
+            buttonHeart?.setOnClickListener {
                 onInteractionListener.onLike(post)
             }
-            imageShare?.setOnClickListener {
+            buttonShare?.setOnClickListener {
                 onInteractionListener.onShare(post)
             }
             menu.setOnClickListener {
