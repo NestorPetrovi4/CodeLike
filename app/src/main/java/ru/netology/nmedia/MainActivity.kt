@@ -2,6 +2,7 @@ package ru.netology.nmedia
 
 import PostViewModel
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -45,6 +46,12 @@ class MainActivity : AppCompatActivity() {
 
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
+            }
+
+            override fun onYoutubeSee(post: Post) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.videoURL))
+                val seeVideo = Intent.createChooser(intent, post.videoURL)
+                startActivity(seeVideo)
             }
         })
         binding.list.adapter = adapter

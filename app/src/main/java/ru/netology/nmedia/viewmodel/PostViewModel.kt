@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.DiffUtil
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
 
-val empty = Post(id = 0, author = "", content = "", published = "")
+val empty = Post(id = 0, author = "", content = "", published = "", videoURL = "")
 
 class PostViewModel : ViewModel() {
     private val repository: PostRepository = PostRepositoryInMemoryImpl()

@@ -2,6 +2,7 @@ package ru.netology.nmedia.adapter
 
 import PostDiffCallback
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.ListAdapter
@@ -12,15 +13,12 @@ import ru.netology.nmedia.dto.Post
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
-typealias OnLikeListener = (post: Post) -> Unit
-typealias OnShareListener = (post: Post) -> Unit
-typealias OnRemoveListener = (post: Post) -> Unit
-
 interface OnInteractionListener {
     fun onLike(post: Post) {}
     fun onShare(post: Post) {}
     fun onRemove(post: Post) {}
     fun onEdit(post: Post) {}
+    fun onYoutubeSee(post: Post)
 }
 
 class PostsAdapter(private val onInteractionListener: OnInteractionListener) :
@@ -57,6 +55,15 @@ class PostViewHolder(
             buttonShare?.setOnClickListener {
                 onInteractionListener.onShare(post)
             }
+            if (post.videoURL.isNotEmpty()) group.visibility = View.VISIBLE
+
+            youtubeImage?.setOnClickListener {
+                onInteractionListener.onYoutubeSee(post)
+            }
+            playYoutube.setOnClickListener{
+                onInteractionListener.onYoutubeSee(post)
+            }
+
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)
