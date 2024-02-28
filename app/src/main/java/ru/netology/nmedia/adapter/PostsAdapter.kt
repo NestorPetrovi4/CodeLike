@@ -55,7 +55,7 @@ class PostViewHolder(
             buttonShare?.setOnClickListener {
                 onInteractionListener.onShare(post)
             }
-            if (post.videoURL.isNotEmpty()) group.visibility = View.VISIBLE
+            group.visibility = if (post.videoURL.isNotEmpty())  View.VISIBLE else View.GONE
 
             youtubeImage?.setOnClickListener {
                 onInteractionListener.onYoutubeSee(post)
