@@ -10,106 +10,21 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/barrier_save"
+        app:layout_constraintBottom_toTopOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/card_post" />
 
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier_save"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="list" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/editLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/edit"
-        app:layout_constraintTop_toBottomOf="@id/barrier_save"
-        tools:layout_editor_absoluteX="8dp">
-
-        <ImageButton
-            android:id="@+id/editPen"
-            android:layout_width="wrap_content"
-            android:layout_height="24dp"
-            android:background="@android:color/transparent"
-            app:layout_constraintStart_toStartOf="@id/editLayout"
-            app:layout_constraintTop_toTopOf="@id/editLayout"
-            app:srcCompat="@drawable/baseline_edit_24"
-            tools:ignore="MissingConstraints" />
-
-        <TextView
-            android:id="@+id/editHeading"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/edit_message"
-            android:textColor="#5E7998"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/originalText"
-            app:layout_constraintEnd_toStartOf="@id/closeEdit"
-            app:layout_constraintStart_toEndOf="@id/editPen"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed" />
-
-        <TextView
-            android:id="@+id/originalText"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:maxLines="3"
-            android:ellipsize="end"
-            android:text="@string/original_text_post"
-            app:layout_constraintBottom_toBottomOf="@id/editLayout"
-            app:layout_constraintEnd_toStartOf="@id/closeEdit"
-            app:layout_constraintStart_toEndOf="@id/editPen"
-            app:layout_constraintTop_toTopOf="@id/editHeading" />
-
-        <ImageButton
-            android:id="@+id/closeEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            app:layout_constraintEnd_toEndOf="@id/editLayout"
-            app:layout_constraintTop_toTopOf="@id/editLayout"
-            app:srcCompat="@drawable/baseline_close_24"
-            tools:ignore="MissingConstraints" />
-        />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        app:constraint_referenced_ids="editLayout" />
-
-    <EditText
-        android:id="@+id/edit"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:hint="@string/post_text"
-        android:importantForAutofill="no"
-        android:inputType="textMultiLine"
-        android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/save"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editLayout" />
-
-
-    <ImageButton
-        android:id="@+id/save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:layout_margin="8dp"
         android:contentDescription="@string/description_post_save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/editLayout"
-        app:srcCompat="@drawable/ic_save_48" />
+        app:srcCompat="@drawable/ic_add_24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,11 +1,15 @@
 package ru.netology.nmedia
 
 import PostViewModel
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.core.app.ActivityOptionsCompat
+import org.jetbrains.annotations.ApiStatus.Internal
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.ActivityMainBinding
@@ -20,6 +24,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val viewModel: PostViewModel by viewModels()
+        val newPostLauncher = registerForActivityResult(NewPostContract) { result ->
+            if (result == null) {
+                viewModel.closeEdit()
+                return@registerForActivityResult
+            } else
+                viewModel.changeContentAndSave(result)
+        }
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
@@ -36,8 +47,13 @@ class MainActivity : AppCompatActivity() {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
             }
+
+            override fun onYoutubeSee(post: Post) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.videoURL))
+                val seeVideo = Intent.createChooser(intent, post.videoURL)
+                startActivity(seeVideo)
+            }
         })
-        binding.group.visibility = View.GONE
         binding.list.adapter = adapter
         viewModel.data.observe(this) { posts ->
             val isNewPost =
@@ -48,32 +64,11 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.edited.observe(this) { post ->
             if (post.id != 0) {
-                binding.group.visibility = View.VISIBLE
-                binding.originalText.text = post.content
-                binding.edit.setText(post.content)
-                binding.edit.focusAndShowKeyboard()
+                newPostLauncher.launch(post.content)
             }
         }
-
-        binding.closeEdit.setOnClickListener {
-            binding.group.visibility = View.GONE
-            binding.edit.setText("")
-            binding.edit.clearFocus()
-            AndroidUtils.hideKeyboard(it)
-            viewModel.closeEdit()
-        }
-
-        binding.save.setOnClickListener {
-            binding.group.visibility = View.GONE
-            val inputText = binding.edit.text.toString().trim()
-            if (inputText.isEmpty()) {
-                Toast.makeText(this, R.string.error_empty_content, Toast.LENGTH_LONG).show()
-                return@setOnClickListener
-            }
-            viewModel.changeContentAndSave(inputText)
-            binding.edit.setText("")
-            binding.edit.clearFocus()
-            AndroidUtils.hideKeyboard(it)
+        binding.add.setOnClickListener {
+            newPostLauncher.launch(null)
         }
     }
 }

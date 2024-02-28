@@ -80,12 +80,43 @@
         app:layout_constraintVertical_bias="0.0"
         tools:text="@sample/posts.json/data/content" />
 
+    <ImageView
+        android:id="@+id/youtubeImage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@id/barrierContent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/content"
+        android:src="@drawable/youtube" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/playYoutube"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:icon="@drawable/ic_play_youtube_48"
+        app:iconGravity="textEnd"
+        app:layout_constraintBottom_toBottomOf="@id/youtubeImage"
+        app:layout_constraintEnd_toEndOf="@id/youtubeImage"
+        app:layout_constraintStart_toStartOf="@id/youtubeImage"
+        app:layout_constraintTop_toTopOf="@id/youtubeImage"
+        app:iconSize="@dimen/icon_button_max_size"/>
+
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrierContent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="content" />
+        app:constraint_referenced_ids="youtubeImage" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="youtubeImage, playYoutube" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonHeart"
