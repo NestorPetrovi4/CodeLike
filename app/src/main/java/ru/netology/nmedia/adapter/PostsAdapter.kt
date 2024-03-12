@@ -1,12 +1,15 @@
 package ru.netology.nmedia.adapter
 
 import PostDiffCallback
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import ru.netology.nmedia.FeedFragment.Companion.intArg
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -36,7 +39,7 @@ class PostsAdapter(private val onInteractionListener: OnInteractionListener) :
     }
 }
 
-class PostViewHolder(
+open class PostViewHolder(
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -55,12 +58,12 @@ class PostViewHolder(
             buttonShare?.setOnClickListener {
                 onInteractionListener.onShare(post)
             }
-            group.visibility = if (post.videoURL.isNotEmpty())  View.VISIBLE else View.GONE
+            group.visibility = if (post.videoURL.isNotEmpty()) View.VISIBLE else View.GONE
 
             youtubeImage?.setOnClickListener {
                 onInteractionListener.onYoutubeSee(post)
             }
-            playYoutube.setOnClickListener{
+            playYoutube.setOnClickListener {
                 onInteractionListener.onYoutubeSee(post)
             }
 
@@ -83,21 +86,31 @@ class PostViewHolder(
                         }
                     }
                 }.show()
+
+
+            }
+            binding.constraint.setOnClickListener {
+                binding.root.findNavController()
+                    .navigate(R.id.action_feedFragment_to_postFragment,
+                        Bundle().apply { intArg = post.id }
+                    )
             }
         }
     }
 
-    private fun convertDigitMinimizedString(value: Int): String {
-        val format = DecimalFormat("#.#")
-        format.roundingMode = RoundingMode.DOWN
-        if (value < 1000) {
-            return value.toString()
-        } else if (value < 10000) {
-            return (if (value % 1000 == 0) (value / 1000).toString() else format.format((value.toDouble() / 1000))) + "K"
-        } else if (value < 1_000_000) {
-            return (value / 1000).toString() + "K"
-        } else {
-            return (if (value % 1000000 == 0) (value / 1000000).toString() else format.format((value.toDouble() / 1000000))) + "M"
+    companion object {
+        fun convertDigitMinimizedString(value: Int): String {
+            val format = DecimalFormat("#.#")
+            format.roundingMode = RoundingMode.DOWN
+            if (value < 1000) {
+                return value.toString()
+            } else if (value < 10000) {
+                return (if (value % 1000 == 0) (value / 1000).toString() else format.format((value.toDouble() / 1000))) + "K"
+            } else if (value < 1_000_000) {
+                return (value / 1000).toString() + "K"
+            } else {
+                return (if (value % 1000000 == 0) (value / 1000000).toString() else format.format((value.toDouble() / 1000000))) + "M"
+            }
         }
     }
 
