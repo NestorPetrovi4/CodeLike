@@ -52,7 +52,14 @@ class PostRepositoryInFileImpl(private val context: Context) : PostRepository {
 
     override fun save(post: Post) {
         posts = if (post.id == 0) {
-            listOf(post.copy(id = nextId++, published = "Now", author = "Netology")) + posts
+            listOf(
+                post.copy(
+                    id = nextId++,
+                    published = "Now",
+                    author = "Netology",
+                    videoURL = "https://www.youtube.com/watch?v=eaU_8HO-Fdk"
+                )
+            ) + posts
         } else {
             posts.map {
                 if (it.id != post.id) it else it.copy(content = post.content)

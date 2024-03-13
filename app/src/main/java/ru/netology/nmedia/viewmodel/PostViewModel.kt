@@ -12,24 +12,29 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val data = repository.getAll()
     val edited = MutableLiveData(empty)
 
-    fun changeContentAndSave(content: String){
+    fun changeContentAndSave(content: String) {
         edited.value?.let {
-            if(content != it.content){
+            if (content != it.content) {
                 repository.save(it.copy(content = content))
             }
             edited.value = empty
         }
     }
+
     fun likeById(id: Int) = repository.likeById(id)
     fun sharedById(id: Int) = repository.sharedById(id)
     fun removeById(id: Int) = repository.removeByID(id)
 
-    fun edit(post: Post){
+    fun edit(post: Post) {
         edited.value = post
     }
 
-    fun closeEdit(){
+    fun closeEdit() {
         edited.value = empty
+    }
+
+    fun getById(id: Int): Post {
+        return data.value?.find { it.id == id } ?: empty
     }
 }
 
