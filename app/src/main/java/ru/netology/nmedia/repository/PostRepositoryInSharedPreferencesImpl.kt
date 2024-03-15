@@ -6,24 +6,24 @@ import com.google.gson.reflect.TypeToken
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
 
-class PostRepositoryInSharedPreferencesImpl(private  val context: Context) : PostRepository {
+class PostRepositoryInSharedPreferencesImpl(private val context: Context) : PostRepository {
     private val gson = Gson()
     private val prefs = context.getSharedPreferences("repo", Context.MODE_PRIVATE)
     private val type = TypeToken.getParameterized(List::class.java, Post::class.java).type
     private val key = "posts"
     private var nextId = 1
     private var posts = emptyList<Post>()
-       private set(value) {
-           field = value
-           data.value = value
-           sync()
-       }
+        private set(value) {
+            field = value
+            data.value = value
+            sync()
+        }
     private val data = MutableLiveData(posts)
 
     init {
         prefs.getString(key, null)?.let {
             posts = gson.fromJson(it, type)
-            nextId = posts.maxOfOrNull{it -> it.id}?.inc() ?: 1
+            nextId = posts.maxOfOrNull { it -> it.id }?.inc() ?: 1
         }
     }
 
@@ -57,8 +57,13 @@ class PostRepositoryInSharedPreferencesImpl(private  val context: Context) : Pos
             }
         }
     }
-    private fun sync(){
-        with(prefs.edit()){
+
+    override fun addRepoValue(key: String, value: String) {}
+    override fun removeRepoKey(key: String) {}
+    override fun getRepoKey(key: String) = ""
+
+    private fun sync() {
+        with(prefs.edit()) {
             putString(key, gson.toJson(posts))
             apply()
         }
