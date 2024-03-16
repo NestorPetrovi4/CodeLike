@@ -67,6 +67,10 @@ class PostRepositoryInFileImpl(private val context: Context) : PostRepository {
         }
     }
 
+    override fun addRepoValue(key: String, value: String) {}
+    override fun removeRepoKey(key: String) {}
+    override fun getRepoKey(key: String) = ""
+
     private fun sync() {
         context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter().use {
             it.write(gson.toJson(posts))

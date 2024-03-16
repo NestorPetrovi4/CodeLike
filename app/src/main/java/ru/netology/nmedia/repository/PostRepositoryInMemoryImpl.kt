@@ -78,4 +78,8 @@ class PostRepositoryInMemoryImpl : PostRepository {
         }
         data.value = posts
     }
+
+    override fun addRepoValue(key: String, value: String) {}
+    override fun removeRepoKey(key: String) {}
+    override fun getRepoKey(key: String) = ""
 }
