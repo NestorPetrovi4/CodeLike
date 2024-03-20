@@ -5,13 +5,13 @@ import androidx.recyclerview.widget.DiffUtil
 import ru.netology.nmedia.db.AppDB
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryInSQLiteImpl
+import ru.netology.nmedia.repository.PostRepositoryInRoomImpl
 
 val empty = Post(id = 0, author = "", content = "", published = "", videoURL = "")
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository =
-        PostRepositoryInSQLiteImpl(AppDB.getInstance(application).postDAO)
+        PostRepositoryInRoomImpl(AppDB.getInstance(application).postDAO())
 
     val data = repository.getAll()
     val edited = MutableLiveData(empty)
