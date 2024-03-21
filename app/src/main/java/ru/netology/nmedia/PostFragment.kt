@@ -28,24 +28,23 @@ class PostFragment() : Fragment() {
         arguments?.intArg?.let {
             id = it
         } ?: findNavController().navigateUp()
+
         var post = viewModel.getById(id)
+
+        viewModel.data.observe(viewLifecycleOwner) {
+            post = viewModel.getById(id)
+            setValueElement(binding, post)
+        }
+        setValueElement(binding, post)
         binding.apply {
             author.text = post.author
             published.text = post.published
-            content.text = post.content
-            buttonHeart.text = PostViewHolder.convertDigitMinimizedString(post.likes)
-            buttonShare.text = PostViewHolder.convertDigitMinimizedString(post.shared)
-            buttonView.text = PostViewHolder.convertDigitMinimizedString(post.viewOpen)
             buttonHeart.isChecked = post.likedByMe
             buttonHeart?.setOnClickListener {
                 viewModel.likeById(post.id)
-                post = viewModel.getById(id)
-                buttonHeart.text = PostViewHolder.convertDigitMinimizedString(post.likes)
             }
             buttonShare?.setOnClickListener {
                 viewModel.sharedById(post.id)
-                post = viewModel.getById(id)
-                buttonShare.text = PostViewHolder.convertDigitMinimizedString(post.shared)
             }
             group.visibility = if (post.videoURL.isNotEmpty()) View.VISIBLE else View.GONE
 
@@ -81,5 +80,14 @@ class PostFragment() : Fragment() {
             }
         }
         return binding.root
+    }
+
+    private fun setValueElement(binding: CardPostBinding, post: Post) {
+        binding.apply {
+            content.text = post.content
+            buttonHeart.text = PostViewHolder.convertDigitMinimizedString(post.likes)
+            buttonShare.text = PostViewHolder.convertDigitMinimizedString(post.shared)
+            buttonView.text = PostViewHolder.convertDigitMinimizedString(post.viewOpen)
+        }
     }
 }
