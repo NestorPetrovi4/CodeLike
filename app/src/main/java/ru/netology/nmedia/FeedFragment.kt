@@ -75,5 +75,9 @@ class FeedFragment : Fragment() {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.videoURL))
             return Intent.createChooser(intent, post.videoURL)
         }
+
+        inline fun <reified T : Enum<T>> enumValueOfOrNull(name: String): T? {
+            return T::class.java.enumConstants?.find { it.name == name }
+        }
     }
 }

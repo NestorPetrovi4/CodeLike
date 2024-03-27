@@ -13,4 +13,9 @@
     <string name="menu_edit">Edit</string>
     <string name="original_text_post">Original text Post</string>
     <string name="edit_message">Edit Message</string>
+    <string name="channel_remote_name">Server notifications</string>
+    <string name="channel_remote_description">Notifications from remote server</string>
+    <string name="notification_user_liked">User %1$s liked %2$s\\\'s post</string>
+    <string name="google_play_unavailable">Google Api Unavailable</string>
+    <string name="app_err_message_received">The app version may be outdated, try updating it.</string>
 </resources>
