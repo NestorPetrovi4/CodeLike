@@ -15,6 +15,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.FeedFragment
 import ru.netology.nmedia.R
+import ru.netology.nmedia.dto.Post
 import kotlin.random.Random
 
 class FCMService : FirebaseMessagingService() {
@@ -47,6 +48,12 @@ class FCMService : FirebaseMessagingService() {
                         Like::class.java
                     )
                 )
+                Action.NEWPOST -> handleNewPost(
+                    gson.fromJson(
+                        message.data[content],
+                        Post::class.java
+                    )
+                )
                 null -> handleNull(getString(R.string.app_err_message_received))
             }
         }
@@ -74,6 +81,19 @@ class FCMService : FirebaseMessagingService() {
         notify(notification)
     }
 
+    private fun handleNewPost(content: Post) {
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(
+                getString(
+                    R.string.notification_new_post, content.author))
+            //.setContentText(content.content)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(content.content))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+        notify(notification)
+    }
+
     private fun handleNull(content: String) {
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
@@ -98,6 +118,7 @@ class FCMService : FirebaseMessagingService() {
 
 enum class Action {
     LIKE,
+    NEWPOST,
 }
 
 data class Like(

@@ -16,7 +16,8 @@
     <string name="edit_message">Редактируемое сообщение</string>
     <string name="channel_remote_name">Уведомления сервера</string>
     <string name="channel_remote_description">Уведомления с удаленного сервера</string>
-    <string name="notification_user_liked">Пользователю %1$s понравился пост %2$s</string>
+    <string name="notification_user_liked">Пользователю %1$s понравился пост %2$s\\\'s</string>
     <string name="google_play_unavailable">Сервисы Google Api недоступны</string>
     <string name="app_err_message_received">Возможно версия приложения устарела, попробуйте обновить его.</string>
+    <string name="notification_new_post">%1$s опубликовал новый пост:</string>
 </resources>
