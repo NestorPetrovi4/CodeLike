@@ -45,4 +45,7 @@ object AndroidUtils {
                 })
         }
     }
+    inline fun <reified T : Enum<T>> enumValueOfOrNull(name: String): T? {
+        return T::class.java.enumConstants?.find { it.name == name }
+    }
 }

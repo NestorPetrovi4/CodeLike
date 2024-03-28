@@ -19,6 +19,7 @@ import ru.netology.nmedia.AppActivity
 import ru.netology.nmedia.FeedFragment
 import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.util.AndroidUtils
 import kotlin.random.Random
 
 class FCMService : FirebaseMessagingService() {
@@ -44,7 +45,7 @@ class FCMService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
 
         message.data[action]?.let {
-            when (FeedFragment.enumValueOfOrNull<Action>(it)) {
+            when (AndroidUtils.enumValueOfOrNull<Action>(it)) {
                 Action.LIKE -> handleLike(
                     gson.fromJson(
                         message.data[content],
@@ -92,7 +93,6 @@ class FCMService : FirebaseMessagingService() {
             .setContentTitle(
                 getString(
                     R.string.notification_new_post, content.author))
-            //.setContentText(content.content)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content.content))
