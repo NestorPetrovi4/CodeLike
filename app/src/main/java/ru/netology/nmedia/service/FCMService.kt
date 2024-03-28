@@ -5,7 +5,9 @@ import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -13,6 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import ru.netology.nmedia.AppActivity
 import ru.netology.nmedia.FeedFragment
 import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
@@ -82,12 +85,16 @@ class FCMService : FirebaseMessagingService() {
     }
 
     private fun handleNewPost(content: Post) {
+        val intent = Intent(this, AppActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(
                 getString(
                     R.string.notification_new_post, content.author))
             //.setContentText(content.content)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content.content))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
