@@ -20,4 +20,7 @@
     <string name="google_play_unavailable">Сервисы Google Api недоступны</string>
     <string name="app_err_message_received">Возможно версия приложения устарела, попробуйте обновить его.</string>
     <string name="notification_new_post">%1$s опубликовал новый пост:</string>
+    <string name="no_post">Нет постов</string>
+    <string name="error_getting_the_list_posts">Ошибка получения списка постов</string>
+    <string name="retry">Обновить</string>
 </resources>

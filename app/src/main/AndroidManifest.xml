@@ -9,6 +9,16 @@
             <data android:scheme="*" />
         </intent>
     </queries>
+    
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
+    buildTypes {
+    release{
+    minifyEnabled false
+    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    manifestPlaceholders.usesCleartextTraffic = false}
+    debug {
+    manifestPlaceholders.usesCleartextTraffic = true}}
 
     <application
         android:allowBackup="true"
@@ -19,7 +29,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CodeLike"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        android:usesCleartextTraffic="${usesCleartextTraffic}">
         <activity
             android:name=".AppActivity"
             android:exported="true"

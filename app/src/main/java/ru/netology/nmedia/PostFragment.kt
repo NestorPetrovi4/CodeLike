@@ -46,7 +46,7 @@ class PostFragment() : Fragment() {
             buttonShare?.setOnClickListener {
                 viewModel.sharedById(post.id)
             }
-            group.visibility = if (post.videoURL.isNotEmpty()) View.VISIBLE else View.GONE
+            group.visibility = if (post.videoURL?.isNotEmpty() ?: false) View.VISIBLE else View.GONE
 
             youtubeImage?.setOnClickListener {
                 startActivity(FeedFragment.startVideo(post))
