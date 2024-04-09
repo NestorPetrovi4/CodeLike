@@ -12,14 +12,6 @@
     
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
-    buildTypes {
-    release{
-    minifyEnabled false
-    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-    manifestPlaceholders.usesCleartextTraffic = false}
-    debug {
-    manifestPlaceholders.usesCleartextTraffic = true}}
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
