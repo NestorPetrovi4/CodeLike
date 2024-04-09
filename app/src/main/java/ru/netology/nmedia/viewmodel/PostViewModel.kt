@@ -57,7 +57,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun likeById(id: Int) {
         thread {
-            val post = getById(id).copy(likedByMe = true)
+            val post = getById(id).let { it.copy(likedByMe = !it.likedByMe) }
             _data.postValue(
                 _data.value?.copy(loading = true, posts = _data.value?.posts.orEmpty()
                     .map { if (it.id != id) it else post })
