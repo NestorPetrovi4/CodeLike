@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -34,10 +35,12 @@ class NewPostFragment : Fragment() {
             binding.group.visibility = View.VISIBLE
             binding.originalText.text = it
             binding.edit.setText(it)
+            binding.progress.isVisible = false
         } ?: run {binding.edit.setText(viewModel.getRepoKey("draft_post")) }
 
         binding.edit.focusAndShowKeyboard()
         binding.save.setOnClickListener {
+            binding.progress.isVisible = true
             val inputText = binding.edit.text.toString().trim()
             if (inputText.isNotBlank()) {
                 viewModel.changeContentAndSave(inputText)
@@ -46,10 +49,14 @@ class NewPostFragment : Fragment() {
                 Toast.makeText(context, R.string.error_empty_content, Toast.LENGTH_LONG).show()
                 viewModel.closeEdit()
             }
-            findNavController().navigateUp()
+            //findNavController().navigateUp()
         }
         binding.closeEdit.setOnClickListener {
             beforeClose()
+        }
+        viewModel.postCreated.observe(viewLifecycleOwner){
+            viewModel.loadPosts()
+            findNavController().navigateUp()
         }
         return binding.root
     }

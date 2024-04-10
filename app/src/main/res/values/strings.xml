@@ -19,4 +19,7 @@
     <string name="google_play_unavailable">Google Api Unavailable</string>
     <string name="app_err_message_received">The app version may be outdated, try updating it.</string>
     <string name="notification_new_post">%1$s posted a new post:</string>
+    <string name="no_post">No post</string>
+    <string name="error_getting_the_list_posts">Error getting the list posts</string>
+    <string name="retry">Retry</string>
 </resources>
