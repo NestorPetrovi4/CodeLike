@@ -9,7 +9,7 @@ interface PostRepository {
     fun likeById(id: Int, callback: Callback<Post>)
     fun unlikeById(id: Int, callback: Callback<Post>)
     fun sharedById(id: Int)
-    fun removeByID(id: Int, callback: Callback<Any>)
+    fun removeByID(id: Int, callback: Callback<Unit>)
     fun save(post: Post, callback: Callback<Post>)
     fun addRepoValue(key: String, value: String)
     fun removeRepoKey(key: String)

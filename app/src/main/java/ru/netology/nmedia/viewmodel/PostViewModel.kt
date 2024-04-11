@@ -30,7 +30,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadPosts() {
-        _data.value = FeedModel(loading = true)
+        _data.postValue(FeedModel(loading = true))
         repository.getAll(
             object : PostRepository.Callback<List<Post>> {
                 override fun onSuccess(posts: List<Post>) {
@@ -101,8 +101,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             _data.value?.copy(posts = _data.value?.posts.orEmpty()
                 .filter { it.id != id })
         )
-        repository.removeByID(id, object : PostRepository.Callback<Any> {
-            override fun onSuccess(any: Any) {}
+        repository.removeByID(id, object : PostRepository.Callback<Unit> {
+            override fun onSuccess(unit: Unit) {}
             override fun onError(exception: Exception) {
                 _data.postValue(_data.value?.copy(posts = old, error = true))
             }

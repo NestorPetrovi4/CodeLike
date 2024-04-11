@@ -134,7 +134,7 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
         //
     }
 
-    override fun removeByID(id: Int, callback: PostRepository.Callback<Any>) {
+    override fun removeByID(id: Int, callback: PostRepository.Callback<Unit>) {
         val request: Request = Request.Builder()
             .delete()
             .url("${BASE_URL}/api/slow/posts/$id")
@@ -149,7 +149,7 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
                 override fun onResponse(call: Call, response: Response) {
                     try {
                         if (!response.isSuccessful) throw RuntimeException("Response code: ${response.code}")
-                        callback.onSuccess(true)
+                        callback.onSuccess(Unit)
                     } catch (e: Exception) {
                         callback.onError(e)
                     }
