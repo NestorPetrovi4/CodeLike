@@ -9,9 +9,7 @@ import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
-import java.io.IOException
 import java.lang.Exception
-import kotlin.concurrent.thread
 
 val empty = Post(id = 0, author = "", content = "", published = "", videoURL = "")
 
@@ -32,64 +30,83 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadPosts() {
-        thread {
-            _data.postValue(FeedModel(loading = true))
-            try {
-                val posts = repository.getAll()
-                FeedModel(posts = posts, empty = posts.isEmpty())
-            } catch (e: IOException) {
-                FeedModel(error = true)
-            }.also(_data::postValue)
-        }
+        _data.postValue(FeedModel(loading = true))
+        repository.getAll(
+            object : PostRepository.Callback<List<Post>> {
+                override fun onSuccess(posts: List<Post>) {
+                    _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
+                }
+
+                override fun onError(exception: Exception) {
+                    _data.postValue(FeedModel(error = true))
+                }
+            }
+        )
     }
 
     fun changeContentAndSave(content: String) {
         edited.value?.let {
-            thread {
-                if (content != it.content) {
-                    repository.save(it.copy(content = content))
-                    _postCreated.postValue(Unit)
-                }
+            if (content != it.content) {
+                repository.save(it.copy(content = content), object : PostRepository.Callback<Post> {
+                    override fun onSuccess(newPost: Post) {
+                        _postCreated.postValue(Unit)
+                    }
+                    override fun onError(exception: Exception) {
+                        _data.postValue(_data.value?.copy(loading = false, error = true))
+                    }
+                })
+                edited.value = empty
             }
-            edited.value = empty
         }
     }
 
     fun likeById(id: Int) {
-        thread {
-            val post = getById(id).let { it.copy(likedByMe = !it.likedByMe) }
-            _data.postValue(
-                _data.value?.copy(loading = true, posts = _data.value?.posts.orEmpty()
-                    .map { if (it.id != id) it else post })
-            )
-            try {
-                val newPost = if (post.likedByMe)
-                    repository.likeById(id)
-                else repository.unlikeById(id)
+        val post = getById(id).let { it.copy(likedByMe = !it.likedByMe) }
+        _data.postValue(
+            _data.value?.copy(loading = true, posts = _data.value?.posts.orEmpty()
+                .map { if (it.id != id) it else post })
+        )
+        if (post.likedByMe)
+            repository.likeById(id, object : PostRepository.Callback<Post> {
+                override fun onSuccess(newPost: Post) {
+                    _data.postValue(
+                        _data.value?.copy(loading = false, posts = _data.value?.posts.orEmpty()
+                            .map { if (it.id != id) it else newPost })
+                    )
+                }
+
+                override fun onError(exception: Exception) {
+                    _data.postValue(_data.value?.copy(loading = false, error = true))
+                }
+            })
+        else repository.unlikeById(id, object : PostRepository.Callback<Post> {
+            override fun onSuccess(newPost: Post) {
                 _data.postValue(
                     _data.value?.copy(loading = false, posts = _data.value?.posts.orEmpty()
                         .map { if (it.id != id) it else newPost })
                 )
-            } catch (e: IOException) {
+            }
+
+            override fun onError(exception: Exception) {
                 _data.postValue(_data.value?.copy(loading = false, error = true))
             }
-        }
+        })
+
     }
 
     fun sharedById(id: Int) = repository.sharedById(id)
     fun removeById(id: Int) {
-        thread {
-            val old = _data.value?.posts.orEmpty()
-            _data.postValue(
-                _data.value?.copy(posts = _data.value?.posts.orEmpty()
-                    .filter { it.id != id })
-            )
-            try {
-                repository.removeByID(id)
-            } catch (e: Exception) {
-                _data.postValue(_data.value?.copy(posts = old))
+        val old = _data.value?.posts.orEmpty()
+        _data.postValue(
+            _data.value?.copy(posts = _data.value?.posts.orEmpty()
+                .filter { it.id != id })
+        )
+        repository.removeByID(id, object : PostRepository.Callback<Unit> {
+            override fun onSuccess(unit: Unit) {}
+            override fun onError(exception: Exception) {
+                _data.postValue(_data.value?.copy(posts = old, error = true))
             }
-        }
+        })
     }
 
     fun edit(post: Post) {
