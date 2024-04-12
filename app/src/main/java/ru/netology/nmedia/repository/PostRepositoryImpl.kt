@@ -180,6 +180,10 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
             })
     }
 
+    override fun getBASE_URL(): String {
+        return BASE_URL
+    }
+
     override fun addRepoValue(key: String, value: String) {
         dao.addRepoValue(key, value)
     }

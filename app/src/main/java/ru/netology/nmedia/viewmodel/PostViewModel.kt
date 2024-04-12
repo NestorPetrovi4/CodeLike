@@ -16,6 +16,9 @@ val empty = Post(id = 0, author = "", content = "", published = "", videoURL = "
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository =
         PostRepositoryImpl(AppDB.getInstance(application).postDAO())
+    val baseUrlImageAvatar = repository.getBASE_URL() + "/avatars/"
+    val baseUrlImage = repository.getBASE_URL() + "/images/"
+
     private val _data = MutableLiveData(FeedModel())
     val data: LiveData<FeedModel>
         get() = _data
@@ -51,6 +54,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     override fun onSuccess(newPost: Post) {
                         _postCreated.postValue(Unit)
                     }
+
                     override fun onError(exception: Exception) {
                         _data.postValue(_data.value?.copy(loading = false, error = true))
                     }
@@ -76,7 +80,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 override fun onError(exception: Exception) {
-                    _data.postValue(_data.value?.copy(loading = false, error = true))
+                    _data.postValue(
+                        _data.value?.copy(loading = false,
+                            error = true,
+                            posts = _data.value?.posts.orEmpty()
+                                .map { if (it.id != id) it else it.copy(likedByMe = !it.likedByMe) })
+                    )
                 }
             })
         else repository.unlikeById(id, object : PostRepository.Callback<Post> {
@@ -88,7 +97,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onError(exception: Exception) {
-                _data.postValue(_data.value?.copy(loading = false, error = true))
+                _data.postValue(
+                    _data.value?.copy(loading = false,
+                        error = true,
+                        posts = _data.value?.posts.orEmpty()
+                            .map { if (it.id != id) it else it.copy(likedByMe = !it.likedByMe) })
+                )
             }
         })
 

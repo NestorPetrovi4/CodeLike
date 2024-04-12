@@ -46,7 +46,7 @@ class FeedFragment : Fragment() {
             override fun onYoutubeSee(post: Post) {
                 startActivity(startVideo(post))
             }
-        })
+        }, viewModel.baseUrlImageAvatar, viewModel.baseUrlImage)
         binding.list.adapter = adapter
         viewModel.data.observe(viewLifecycleOwner) { state ->
             val isNewPost =
