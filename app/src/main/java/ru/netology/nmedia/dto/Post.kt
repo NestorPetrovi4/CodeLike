@@ -10,5 +10,5 @@ data class Post(
     val viewOpen: Int = 0,
     val videoURL: String? = "",
     val authorAvatar: String? = "",
-    val attachment: Attachment? = Attachment()
+    val attachment: Attachment?
 )

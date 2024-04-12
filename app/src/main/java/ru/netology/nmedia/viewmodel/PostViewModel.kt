@@ -11,7 +11,7 @@ import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.lang.Exception
 
-val empty = Post(id = 0, author = "", content = "", published = "", videoURL = "")
+val empty = Post(id = 0, author = "", content = "", published = "", videoURL = "", attachment = null)
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository =
