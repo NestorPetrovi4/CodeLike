@@ -1,5 +1,6 @@
 package ru.netology.nmedia.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -20,8 +21,8 @@ class PostEntity(
     val viewOpen: Int = 0,
     val videoURL: String? = "",
     val authorAvatar: String? = "",
-    @TypeConverters
-    val attachment: AttachmentEntity?
+    @ColumnInfo(name = "attachment_id")
+    val attachment: Int?
 ) {
     fun toDTO() = Post(
         id,
@@ -60,11 +61,13 @@ class PostEntity(
 @Entity
 class AttachmentEntity(
     @PrimaryKey(autoGenerate = true)
-    val url: String = "",
-    val description: String = "",
-    val type: String = ""
+    val id: Int,
+    val url: String,
+    val description: String,
+    val type: String
 ) {
     fun toDTO() = Attachment(
+        id,
         url,
         description,
         type
@@ -74,6 +77,7 @@ class AttachmentEntity(
         fun fromDTO(attachment: Attachment) =
             attachment?.let {
                 AttachmentEntity(
+                    it.id,
                     it.url,
                     it.description,
                     it.type

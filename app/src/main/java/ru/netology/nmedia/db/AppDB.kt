@@ -9,7 +9,7 @@ import ru.netology.nmedia.entity.AttachmentEntity
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.RepoEntity
 
-@Database(entities = [RepoEntity::class], version = 1)
+@Database(entities = [PostEntity::class, AttachmentEntity::class, RepoEntity::class], version = 1)
 abstract class AppDB :RoomDatabase() {
     abstract fun postDAO() :PostDAO
     companion object {
