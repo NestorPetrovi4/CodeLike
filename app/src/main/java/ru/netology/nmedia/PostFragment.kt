@@ -1,19 +1,20 @@
 package ru.netology.nmedia
 
 import PostViewModel
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.FeedFragment.Companion.intArg
 import ru.netology.nmedia.FeedFragment.Companion.textArg
 import ru.netology.nmedia.adapter.PostViewHolder
+import ru.netology.nmedia.adapter.load
+import ru.netology.nmedia.adapter.loadAvatar
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 
@@ -46,7 +47,7 @@ class PostFragment() : Fragment() {
             buttonShare?.setOnClickListener {
                 viewModel.sharedById(post.id)
             }
-            group.visibility = if (post.videoURL?.isNotEmpty() ?: false) View.VISIBLE else View.GONE
+            group.visibility = if (post.videoURL?.isNotEmpty() == true) View.VISIBLE else View.GONE
 
             youtubeImage?.setOnClickListener {
                 startActivity(FeedFragment.startVideo(post))
@@ -54,6 +55,13 @@ class PostFragment() : Fragment() {
             playYoutube.setOnClickListener {
                 startActivity(FeedFragment.startVideo(post))
             }
+            if (post.attachment?.url.isNullOrEmpty()) {
+                attachmentImage.isVisible = false
+            } else {
+                attachmentImage.isVisible = true
+                attachmentImage.load(viewModel.baseUrlImage + post.attachment?.url)
+            }
+            avatar.loadAvatar(viewModel.baseUrlImageAvatar + post.authorAvatar)
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {

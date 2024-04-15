@@ -45,11 +45,11 @@ class NewPostFragment : Fragment() {
             if (inputText.isNotBlank()) {
                 viewModel.changeContentAndSave(inputText)
                 viewModel.removeRepoKey("draft_post")
+                binding.save.isVisible = false
             } else {
                 Toast.makeText(context, R.string.error_empty_content, Toast.LENGTH_LONG).show()
                 viewModel.closeEdit()
             }
-            //findNavController().navigateUp()
         }
         binding.closeEdit.setOnClickListener {
             beforeClose()

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -24,13 +25,16 @@ interface OnInteractionListener {
     fun onYoutubeSee(post: Post)
 }
 
-class PostsAdapter(private val onInteractionListener: OnInteractionListener) :
+class PostsAdapter(
+    private val onInteractionListener: OnInteractionListener,
+    private val baseUrlImageAvatar: String,
+    private val baseUrlImage: String
+) :
     ListAdapter<Post, PostViewHolder>(PostDiffCallback()) {
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding =
             CardPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return PostViewHolder(binding, onInteractionListener)
+        return PostViewHolder(binding, onInteractionListener, baseUrlImageAvatar, baseUrlImage)
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
@@ -41,7 +45,9 @@ class PostsAdapter(private val onInteractionListener: OnInteractionListener) :
 
 open class PostViewHolder(
     private val binding: CardPostBinding,
-    private val onInteractionListener: OnInteractionListener
+    private val onInteractionListener: OnInteractionListener,
+    private val baseUrlImageAvatar: String,
+    private val baseUrlImage: String
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
         binding.apply {
@@ -60,12 +66,21 @@ open class PostViewHolder(
             }
             group.visibility = if (post.videoURL?.isNotEmpty() ?: false) View.VISIBLE else View.GONE
 
+            if (post.attachment?.url.isNullOrEmpty()) {
+                attachmentImage.isVisible = false
+            } else {
+                attachmentImage.isVisible = true
+                attachmentImage.load(baseUrlImage + post.attachment?.url)
+            }
+
             youtubeImage?.setOnClickListener {
                 onInteractionListener.onYoutubeSee(post)
             }
             playYoutube.setOnClickListener {
                 onInteractionListener.onYoutubeSee(post)
             }
+
+            avatar.loadAvatar(baseUrlImageAvatar + post.authorAvatar)
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {

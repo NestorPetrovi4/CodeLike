@@ -11,6 +11,7 @@ interface PostRepository {
     fun sharedById(id: Int)
     fun removeByID(id: Int, callback: Callback<Unit>)
     fun save(post: Post, callback: Callback<Post>)
+    fun getBASE_URL():String
     fun addRepoValue(key: String, value: String)
     fun removeRepoKey(key: String)
     fun getRepoKey(key: String): String
