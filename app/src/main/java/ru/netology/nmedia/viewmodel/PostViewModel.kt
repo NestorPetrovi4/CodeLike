@@ -27,6 +27,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+    private val _errAddPost = SingleLiveEvent<Unit>()
+    val errAddPost: LiveData<Unit>
+        get() = _errAddPost
 
     init {
         loadPosts()
@@ -41,7 +44,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 override fun onError(exception: Exception) {
-                    _data.postValue(FeedModel(error = true))
+                    _data.postValue(FeedModel(error = true, errorText = exception.message))
                 }
             }
         )
@@ -57,7 +60,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
                     override fun onError(exception: Exception) {
                         _data.postValue(_data.value?.copy(loading = false, error = true))
+                        _errAddPost.postValue(Unit)
                     }
+
                 })
                 edited.value = empty
             }
@@ -83,6 +88,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     _data.postValue(
                         _data.value?.copy(loading = false,
                             error = true,
+                            errorText = exception.message,
                             posts = _data.value?.posts.orEmpty()
                                 .map { if (it.id != id) it else it.copy(likedByMe = !it.likedByMe) })
                     )
@@ -100,6 +106,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 _data.postValue(
                     _data.value?.copy(loading = false,
                         error = true,
+                        errorText = exception.message,
                         posts = _data.value?.posts.orEmpty()
                             .map { if (it.id != id) it else it.copy(likedByMe = !it.likedByMe) })
                 )

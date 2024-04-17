@@ -55,6 +55,7 @@ class FeedFragment : Fragment() {
                 if (isNewPost) binding.list.smoothScrollToPosition(0)
             }
             binding.errorGroup.isVisible = state.error
+            binding.errorText.text = "${getString(R.string.error_getting_the_list_posts)} \n ${state.errorText}"
             binding.progress.isVisible = state.loading
             binding.emptyText.isVisible = state.empty
         }
