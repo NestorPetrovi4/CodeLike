@@ -79,7 +79,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             repository.likeById(id, object : PostRepository.Callback<Post> {
                 override fun onSuccess(newPost: Post) {
                     _data.postValue(
-                        _data.value?.copy(loading = false, posts = _data.value?.posts.orEmpty()
+                        FeedModel(loading = false, posts = _data.value?.posts.orEmpty()
                             .map { if (it.id != id) it else newPost })
                     )
                 }
