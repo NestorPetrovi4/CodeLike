@@ -44,7 +44,6 @@ class NewPostFragment : Fragment() {
             val inputText = binding.edit.text.toString().trim()
             if (inputText.isNotBlank()) {
                 viewModel.changeContentAndSave(inputText)
-                viewModel.removeRepoKey("draft_post")
                 binding.save.isVisible = false
             } else {
                 Toast.makeText(context, R.string.error_empty_content, Toast.LENGTH_LONG).show()
@@ -55,9 +54,15 @@ class NewPostFragment : Fragment() {
             beforeClose()
         }
         viewModel.postCreated.observe(viewLifecycleOwner){
+            viewModel.removeRepoKey("draft_post")
             viewModel.loadPosts()
             findNavController().navigateUp()
         }
+
+        viewModel.errAddPost.observe(viewLifecycleOwner){
+            findNavController().navigateUp()
+        }
+
         return binding.root
     }
 
