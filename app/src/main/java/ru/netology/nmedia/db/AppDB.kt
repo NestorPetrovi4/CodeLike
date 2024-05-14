@@ -5,11 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import ru.netology.nmedia.dao.PostDAO
-import ru.netology.nmedia.entity.AttachmentEntity
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.RepoEntity
 
-@Database(entities = [PostEntity::class, AttachmentEntity::class, RepoEntity::class], version = 1)
+@Database(entities = [PostEntity::class, RepoEntity::class], version = 1)
 abstract class AppDB :RoomDatabase() {
     abstract fun postDAO() :PostDAO
     companion object {
@@ -24,7 +23,7 @@ abstract class AppDB :RoomDatabase() {
 
         private fun buildDatabase(context: Context) =
             Room.databaseBuilder(context, AppDB::class.java, "app.db")
-                .allowMainThreadQueries()
+                //.allowMainThreadQueries()
                 .build()
     }
 }

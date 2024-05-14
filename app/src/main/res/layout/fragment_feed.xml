@@ -58,36 +58,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/errorText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:text="@string/error_getting_the_list_posts"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/retry"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
-
-    <Button
-        android:id="@+id/retry"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/retry"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/errorText"
-        tools:ignore="MissingConstraints" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/errorGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="retry, errorText" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
