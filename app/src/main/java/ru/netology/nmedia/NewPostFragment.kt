@@ -64,7 +64,7 @@ class NewPostFragment : Fragment() {
         }
 
         viewModel.repoEntity.observe(viewLifecycleOwner){
-            binding.edit.setText(viewModel.repoEntity.value)
+            if (binding.edit.text.isEmpty()) binding.edit.setText(viewModel.repoEntity.value)
         }
 
         return binding.root

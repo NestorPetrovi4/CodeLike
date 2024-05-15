@@ -52,10 +52,11 @@ class PostFragment() : Fragment() {
                             viewModel.unLike(state.errorUnLike)
                         } else if (state.errorRemove >= 0) {
                             viewModel.removeById(state.errorRemove)
-                        } else {
-                            viewModel.loadPosts()
+                        } else if (state.errorAddPost != null) {
+                            viewModel.changeContentAndSave(state.errorAddPost.content)
                         }
-                    }.show()
+                    }.setAnchorView(binding.barrier)
+                        .show()
             }
         }
 
@@ -65,7 +66,24 @@ class PostFragment() : Fragment() {
             published.text = post.published
             buttonHeart.isChecked = post.likedByMe
             buttonHeart?.setOnClickListener {
-                viewModel.likeById(post.id)
+                if (!post.sendServer) {
+                    viewModel.likeById(post.id)
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "${getString(R.string.error_edit_posts)}",
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction(R.string.retry) {
+                            if (post.likedByMe) {
+                                viewModel.like(post.id)
+                            } else {
+                                viewModel.unLike(post.id)
+                            }
+                        }
+                        .show()
+                }
+                buttonHeart.isChecked = post.likedByMe
             }
             buttonShare?.setOnClickListener {
                 viewModel.sharedById(post.id)

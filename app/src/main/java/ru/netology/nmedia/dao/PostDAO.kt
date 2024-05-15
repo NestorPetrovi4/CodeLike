@@ -44,4 +44,8 @@ interface PostDAO {
 
     @Query("SELECT value FROM RepoEntity WHERE id = :key")
     suspend fun getRepoKey(key: String): String
+
+    @Query(
+        """UPDATE PostEntity SET sendServer = 0 WHERE id = :id;""")
+    suspend fun sendenServerById(id: Int)
 }

@@ -45,7 +45,10 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
             send = true
         }
         try {
-            if (send || post.sendServer) ApiService.service.likeById(id)
+            if (send || post.sendServer) {
+                ApiService.service.likeById(id)
+                dao.sendenServerById(post.id)
+            }
         } catch (e: NetworkException) {
             throw e
         }
@@ -59,7 +62,10 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
             send = true
         }
         try {
-            if (send || post.sendServer) ApiService.service.unLikeById(id)
+            if (send || post.sendServer) {
+                ApiService.service.unLikeById(id)
+                dao.sendenServerById(post.id)
+            }
         } catch (e: NetworkException) {
             throw e
         }
@@ -84,12 +90,12 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
     override suspend fun save(post: Post) {
         dao.save(PostEntity.fromDTO(post))
         try {
-            ApiService.service.save(if(post.id == -1) post.copy(id =0) else post)
+            ApiService.service.save(if (post.id == Int.MAX_VALUE) post.copy(id = 0) else post)
             val response = ApiService.service.getAll()
             if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
             val posts = response.body() ?: throw UnknownException("Body is null")
             dao.save(posts.toEntity())
-            if (post.id == -1) dao.removeById(-1)
+            if (post.id == Int.MAX_VALUE) dao.removeById(Int.MAX_VALUE)
         } catch (e: NetworkException) {
             throw e
         }

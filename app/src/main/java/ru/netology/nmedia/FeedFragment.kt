@@ -26,7 +26,24 @@ class FeedFragment : Fragment() {
         val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
+                if (!post.sendServer) {
+                    viewModel.likeById(post.id)
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "${getString(R.string.error_edit_posts)}",
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction(R.string.retry) {
+                            if (post.likedByMe) {
+                                viewModel.like(post.id)
+                            } else {
+                                viewModel.unLike(post.id)
+                            }
+                        }
+                        .setAnchorView(binding.add)
+                        .show()
+                }
             }
 
             override fun onShare(post: Post) {
@@ -77,7 +94,9 @@ class FeedFragment : Fragment() {
                         } else {
                             viewModel.loadPosts()
                         }
-                    }.show()
+                    }
+                    .setAnchorView(binding.add)
+                    .show()
             }
         }
         binding.add.setOnClickListener {

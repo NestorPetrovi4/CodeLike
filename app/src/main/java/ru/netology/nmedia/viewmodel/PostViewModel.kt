@@ -35,8 +35,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
-    val repoEntity = MutableLiveData("")
 
+    private val _repoEntity = MutableLiveData("")
+    val repoEntity: LiveData<String>
+        get() = _repoEntity
 
     init {
         loadPosts()
@@ -59,7 +61,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 try {
                     _postCreated.postValue(Unit)
                     _dataState.postValue(FeedModelState(loading = true))
-                    repository.save(it.copy(content = content, id = if (it.id == 0) -1 else it.id))
+                    repository.save(
+                        it.copy(
+                            content = content,
+                            id = if (it.id == 0) Int.MAX_VALUE else it.id
+                        )
+                    )
                     edited.value = empty
                     _dataState.postValue(FeedModelState())
                 } catch (e: Exception) {
@@ -155,7 +162,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun removeRepoKey(key: String) = viewModelScope.launch { repository.removeRepoKey(key) }
 
     fun getRepoKey(key: String) =
-        viewModelScope.launch { repoEntity.value = repository.getRepoKey(key) }
+        viewModelScope.launch { _repoEntity.value = repository.getRepoKey(key) }
 }
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
