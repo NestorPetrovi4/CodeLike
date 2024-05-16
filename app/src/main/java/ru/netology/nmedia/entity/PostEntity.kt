@@ -1,12 +1,11 @@
 package ru.netology.nmedia.entity
 
-import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.enumeration.AttachmentType
 
 @Entity
 class PostEntity(
@@ -21,8 +20,9 @@ class PostEntity(
     val viewOpen: Int = 0,
     val videoURL: String? = "",
     val authorAvatar: String? = "",
-    @ColumnInfo(name = "attachment_id")
-    val attachment: Int?
+    @Embedded
+    val attachment: AttachmentEmbeddable? = null,
+    val sendServer: Boolean = false
 ) {
     fun toDTO() = Post(
         id,
@@ -35,8 +35,8 @@ class PostEntity(
         viewOpen,
         videoURL,
         authorAvatar,
-        null
-       // attachment.toDTO()
+        attachment?.toDTO(),
+        sendServer
     )
 
     companion object {
@@ -52,22 +52,22 @@ class PostEntity(
                 post.viewOpen,
                 post.videoURL,
                 post.authorAvatar,
-                null
-              //  AttachmentEntity.fromDTO(post.attachment)
+                post.attachment?.let { AttachmentEmbeddable.fromDTO(post.attachment) },
+                post.sendServer
             )
     }
 }
 
+fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDTO)
+fun List<Post>.toEntity(): List<PostEntity> = map(PostEntity::fromDTO)
+
 @Entity
-class AttachmentEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int,
+class AttachmentEmbeddable(
     val url: String,
     val description: String,
-    val type: String
+    val type: AttachmentType
 ) {
     fun toDTO() = Attachment(
-        id,
         url,
         description,
         type
@@ -76,8 +76,7 @@ class AttachmentEntity(
     companion object {
         fun fromDTO(attachment: Attachment) =
             attachment?.let {
-                AttachmentEntity(
-                    it.id,
+                AttachmentEmbeddable(
                     it.url,
                     it.description,
                     it.type
@@ -88,7 +87,7 @@ class AttachmentEntity(
 
 @Entity
 class RepoEntity(
-    @PrimaryKey
+    @PrimaryKey()
     val id: String,
     val value: String
 )

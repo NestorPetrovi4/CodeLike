@@ -23,4 +23,6 @@
     <string name="no_post">Нет постов</string>
     <string name="error_getting_the_list_posts">Ошибка получения списка постов</string>
     <string name="retry">Обновить</string>
+    <string name="close">Отменить</string>
+    <string name="error_edit_posts">Пост ожидает отправки на сервер</string>
 </resources>

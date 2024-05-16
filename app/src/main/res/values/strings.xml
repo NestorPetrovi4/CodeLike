@@ -22,4 +22,6 @@
     <string name="no_post">No post</string>
     <string name="error_getting_the_list_posts">Error getting the list posts</string>
     <string name="retry">Retry</string>
+    <string name="close">close</string>
+    <string name="error_edit_posts">Post vait send server</string>
 </resources>

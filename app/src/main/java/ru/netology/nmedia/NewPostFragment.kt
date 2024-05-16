@@ -36,7 +36,7 @@ class NewPostFragment : Fragment() {
             binding.originalText.text = it
             binding.edit.setText(it)
             binding.progress.isVisible = false
-        } ?: run {binding.edit.setText(viewModel.getRepoKey("draft_post")) }
+        } ?: run {viewModel.getRepoKey("draft_post") }
 
         binding.edit.focusAndShowKeyboard()
         binding.save.setOnClickListener {
@@ -55,12 +55,16 @@ class NewPostFragment : Fragment() {
         }
         viewModel.postCreated.observe(viewLifecycleOwner){
             viewModel.removeRepoKey("draft_post")
-            viewModel.loadPosts()
             findNavController().navigateUp()
         }
 
-        viewModel.errAddPost.observe(viewLifecycleOwner){
-            findNavController().navigateUp()
+        viewModel.dataState.observe(viewLifecycleOwner){
+            if (it.errorAddPost != null){
+            findNavController().navigateUp()}
+        }
+
+        viewModel.repoEntity.observe(viewLifecycleOwner){
+            if (binding.edit.text.isEmpty()) binding.edit.setText(viewModel.repoEntity.value)
         }
 
         return binding.root

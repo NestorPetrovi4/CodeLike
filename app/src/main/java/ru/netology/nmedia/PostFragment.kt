@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.FeedFragment.Companion.intArg
 import ru.netology.nmedia.FeedFragment.Companion.textArg
 import ru.netology.nmedia.adapter.PostViewHolder
@@ -36,13 +37,53 @@ class PostFragment() : Fragment() {
             post = viewModel.getById(id)
             setValueElement(binding, post)
         }
+
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            if (state.error) {
+                Snackbar.make(
+                    binding.root,
+                    "${getString(R.string.error_getting_the_list_posts)} \n ${state?.errorText ?: ""}",
+                    Snackbar.LENGTH_INDEFINITE
+                )
+                    .setAction(R.string.retry) {
+                        if (state.errorLike >= 0) {
+                            viewModel.like(state.errorLike)
+                        } else if (state.errorUnLike >= 0) {
+                            viewModel.unLike(state.errorUnLike)
+                        } else if (state.errorRemove >= 0) {
+                            viewModel.removeById(state.errorRemove)
+                        } else if (state.errorAddPost != null) {
+                            viewModel.changeContentAndSave(state.errorAddPost.content)
+                        }
+                    }.setAnchorView(binding.barrier)
+                        .show()
+            }
+        }
+
         setValueElement(binding, post)
         binding.apply {
             author.text = post.author
             published.text = post.published
             buttonHeart.isChecked = post.likedByMe
             buttonHeart?.setOnClickListener {
-                viewModel.likeById(post.id)
+                if (!post.sendServer) {
+                    viewModel.likeById(post.id)
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "${getString(R.string.error_edit_posts)}",
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction(R.string.retry) {
+                            if (post.likedByMe) {
+                                viewModel.like(post.id)
+                            } else {
+                                viewModel.unLike(post.id)
+                            }
+                        }
+                        .show()
+                }
+                buttonHeart.isChecked = post.likedByMe
             }
             buttonShare?.setOnClickListener {
                 viewModel.sharedById(post.id)

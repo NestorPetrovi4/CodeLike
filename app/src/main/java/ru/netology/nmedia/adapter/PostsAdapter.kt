@@ -60,6 +60,7 @@ open class PostViewHolder(
             buttonHeart.isChecked = post.likedByMe
             buttonHeart?.setOnClickListener {
                 onInteractionListener.onLike(post)
+                buttonHeart.isChecked = post.likedByMe
             }
             buttonShare?.setOnClickListener {
                 onInteractionListener.onShare(post)

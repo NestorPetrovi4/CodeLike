@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
@@ -25,7 +26,24 @@ class FeedFragment : Fragment() {
         val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
+                if (!post.sendServer) {
+                    viewModel.likeById(post.id)
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "${getString(R.string.error_edit_posts)}",
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction(R.string.retry) {
+                            if (post.likedByMe) {
+                                viewModel.like(post.id)
+                            } else {
+                                viewModel.unLike(post.id)
+                            }
+                        }
+                        .setAnchorView(binding.add)
+                        .show()
+                }
             }
 
             override fun onShare(post: Post) {
@@ -54,20 +72,39 @@ class FeedFragment : Fragment() {
             adapter.submitList(state.posts) {
                 if (isNewPost) binding.list.smoothScrollToPosition(0)
             }
-            binding.errorGroup.isVisible = state.error
-            binding.errorText.text = "${getString(R.string.error_getting_the_list_posts)} \n ${state.errorText}"
-            binding.progress.isVisible = state.loading
             binding.emptyText.isVisible = state.empty
+        }
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            binding.progress.isVisible = state.loading
+            if (state.error) {
+                Snackbar.make(
+                    binding.root,
+                    "${getString(R.string.error_getting_the_list_posts)} \n ${state?.errorText ?: ""}",
+                    Snackbar.LENGTH_INDEFINITE
+                )
+                    .setAction(R.string.retry) {
+                        if (state.errorLike >= 0) {
+                            viewModel.like(state.errorLike)
+                        } else if (state.errorUnLike >= 0) {
+                            viewModel.unLike(state.errorUnLike)
+                        } else if (state.errorRemove >= 0) {
+                            viewModel.removeById(state.errorRemove)
+                        } else if (state.errorAddPost != null) {
+                            viewModel.changeContentAndSave(state.errorAddPost.content)
+                        } else {
+                            viewModel.loadPosts()
+                        }
+                    }
+                    .setAnchorView(binding.add)
+                    .show()
+            }
         }
         binding.add.setOnClickListener {
             viewModel.closeEdit()
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
-        binding.retry.setOnClickListener{
-            viewModel.loadPosts()
-        }
-        binding.swiperFresh.setOnRefreshListener{
+        binding.swiperFresh.setOnRefreshListener {
             viewModel.loadPosts()
             binding.swiperFresh.isRefreshing = false
         }
