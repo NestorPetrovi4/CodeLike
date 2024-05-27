@@ -1,17 +1,20 @@
 package ru.netology.nmedia.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.RepoEntity
 
 @Dao
 interface PostDAO {
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
-    fun getAll(): LiveData<List<PostEntity>>
+    fun getAll(): Flow<List<PostEntity>>
+
+    @Query("SELECT * FROM PostEntity WHERE CASE WHEN :readMe = TRUE THEN readMe = 1 ELSE readMe = 0 END ORDER BY id DESC")
+    fun getReadMeAll(readMe: Boolean = true): Flow<List<PostEntity>>
 
     @Query("""SELECT * FROM PostEntity WHERE id = :id;""")
     suspend fun getById(id: Int): PostEntity
@@ -48,4 +51,13 @@ interface PostDAO {
     @Query(
         """UPDATE PostEntity SET sendServer = 0 WHERE id = :id;""")
     suspend fun sendenServerById(id: Int)
+
+    @Query("SELECT * FROM PostEntity ORDER BY id DESC LIMIT 1")
+    suspend fun getMaxPostId(): List<PostEntity>
+
+    @Query("SELECT * FROM PostEntity WHERE readMe = 0")
+    suspend fun getNotReadMeMaxPost(): List<PostEntity>
+
+    @Query("UPDATE PostEntity SET readMe = 1 WHERE readMe = 0")
+    suspend fun setReadAll()
 }

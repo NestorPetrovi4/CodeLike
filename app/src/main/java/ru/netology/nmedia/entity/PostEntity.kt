@@ -22,7 +22,8 @@ class PostEntity(
     val authorAvatar: String? = "",
     @Embedded
     val attachment: AttachmentEmbeddable? = null,
-    val sendServer: Boolean = false
+    val sendServer: Boolean = false,
+    val readMe: Boolean = true
 ) {
     fun toDTO() = Post(
         id,
@@ -40,7 +41,7 @@ class PostEntity(
     )
 
     companion object {
-        fun fromDTO(post: Post) =
+        fun fromDTO(post: Post, readMe: Boolean = true) =
             PostEntity(
                 post.id,
                 post.author,
@@ -53,13 +54,15 @@ class PostEntity(
                 post.videoURL,
                 post.authorAvatar,
                 post.attachment?.let { AttachmentEmbeddable.fromDTO(post.attachment) },
-                post.sendServer
+                post.sendServer,
+                readMe
             )
     }
 }
 
 fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDTO)
-fun List<Post>.toEntity(): List<PostEntity> = map(PostEntity::fromDTO)
+fun List<Post>.toEntity(readMe: Boolean = true): List<PostEntity> =
+    map { PostEntity.fromDTO(it, readMe) }
 
 @Entity
 class AttachmentEmbeddable(

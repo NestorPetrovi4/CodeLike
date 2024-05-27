@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -66,6 +67,8 @@ class FeedFragment : Fragment() {
             }
         }, viewModel.baseUrlImageAvatar, viewModel.baseUrlImage)
         binding.list.adapter = adapter
+        binding.navBar.isVisible = false
+        binding.ViewNewPosts.isVisible = false
         viewModel.data.observe(viewLifecycleOwner) { state ->
             val isNewPost =
                 adapter.currentList.size < state.posts.size && adapter.currentList.isNotEmpty()
@@ -99,17 +102,45 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
+        viewModel.newerCount.observe(viewLifecycleOwner) {
+            binding.navBar.isVisible = it != 0
+            binding.buttonNotice.text = it.toString()
+            binding.ViewNewPosts.isVisible = it != 0
+        }
         binding.add.setOnClickListener {
             viewModel.closeEdit()
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
+        binding.buttonNotice.setOnClickListener {
+            setRedAll(binding, viewModel)
+        }
+
+        binding.ViewNewPosts.setOnClickListener{
+            setRedAll(binding, viewModel)
+        }
+
         binding.swiperFresh.setOnRefreshListener {
+            binding.navBar.isVisible = false
             viewModel.loadPosts()
             binding.swiperFresh.isRefreshing = false
         }
 
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                if (positionStart == 0) {
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
+        })
+
         return binding.root
+    }
+
+    private fun setRedAll(binding: FragmentFeedBinding, viewModel: PostViewModel) {
+        binding.navBar.isVisible = false
+        binding.ViewNewPosts.isVisible = false
+        viewModel.setReadAll()
     }
 
     companion object {
