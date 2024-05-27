@@ -2,9 +2,14 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDB
 import ru.netology.nmedia.dto.Post
@@ -23,12 +28,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val baseUrlImage = repository.getBASE_URL() + "/images/"
 
     private val _data = repository.data.map { FeedModel(posts = it, empty = it.isEmpty()) }
+        .asLiveData(Dispatchers.Default)
     val data: LiveData<FeedModel>
         get() = _data
 
     private val _dataState = MutableLiveData(FeedModelState())
     val dataState: LiveData<FeedModelState>
         get() = _dataState
+    val newerCount: LiveData<Int> =
+        _data.switchMap { repository.getNewerCount().asLiveData(Dispatchers.Default) }
 
     val edited = MutableLiveData(empty)
 
@@ -163,6 +171,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getRepoKey(key: String) =
         viewModelScope.launch { _repoEntity.value = repository.getRepoKey(key) }
+
+    fun setReadAll() = viewModelScope.launch { repository.setReadAll() }
 }
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {

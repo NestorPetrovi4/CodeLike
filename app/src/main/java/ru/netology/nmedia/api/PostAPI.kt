@@ -35,6 +35,9 @@ interface PostAPI {
     @GET("/api/slow/posts")
     suspend fun getAll(): Response<List<Post>>
 
+    @GET("/api/slow/posts/{id}/newer")
+    suspend fun getNewer(@Path("id") id: Int): Response<List<Post>>
+
     @GET("/api/slow/posts/{id}")
     suspend fun getById(@Path("id") id: Int): Post
 

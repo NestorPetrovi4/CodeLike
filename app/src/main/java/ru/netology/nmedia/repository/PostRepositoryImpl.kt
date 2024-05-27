@@ -1,7 +1,15 @@
 package ru.netology.nmedia.repository
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
+import okhttp3.Dispatcher
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostDAO
@@ -14,7 +22,8 @@ import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
 
 class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
-    override val data: LiveData<List<Post>> = dao.getAll().map(List<PostEntity>::toDto)
+    override val data: Flow<List<Post>> = dao.getReadMeAll().map(List<PostEntity>::toDto)
+        .flowOn(Dispatchers.Default)
 
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
@@ -114,4 +123,27 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
     }
 
     override suspend fun getRepoKey(key: String) = dao.getRepoKey(key)
+    override fun getNewerCount(): Flow<Int> = flow<Int> {
+        var lastId = dao.getMaxPostId().firstOrNull()?.id ?: 0
+        while (true) {
+            delay(30_000)
+            try {
+                val response = ApiService.service.getNewer(lastId)
+                val body = response.body() ?: continue
+                dao.save(body.toEntity(false))
+                lastId = if (body.isNotEmpty()) body.maxBy { it.id }.id else lastId
+//                val notReadMe = flow<List<PostEntity>> {
+//                    emit(dao.getReadMeAll(false).single())
+//                }
+//                val listNotRead = notReadMe.single().size
+                emit(dao.getNotReadMeMaxPost().size)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+            }
+        }
+
+    }
+    override suspend fun setReadAll() = dao.setReadAll()
+
 }

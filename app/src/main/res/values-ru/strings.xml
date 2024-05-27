@@ -25,4 +25,5 @@
     <string name="retry">Обновить</string>
     <string name="close">Отменить</string>
     <string name="error_edit_posts">Пост ожидает отправки на сервер</string>
+    <string name="goviewnewposts">Свежие записи</string>
 </resources>
