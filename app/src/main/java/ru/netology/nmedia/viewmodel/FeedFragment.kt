@@ -1,4 +1,4 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.viewmodel
 
 import PostViewModel
 import android.content.Intent
@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
@@ -65,6 +66,13 @@ class FeedFragment : Fragment() {
             override fun onYoutubeSee(post: Post) {
                 startActivity(startVideo(post))
             }
+            override fun onImageSee(post: Post){
+                post.attachment?.url.let {
+                    findNavController().navigate(
+                        R.id.action_feedFragment_to_imagePost,
+                        Bundle().apply { textArg = viewModel.baseUrlImage + post.attachment?.url })
+                }
+            }
         }, viewModel.baseUrlImageAvatar, viewModel.baseUrlImage)
         binding.list.adapter = adapter
         binding.navBar.isVisible = false
@@ -102,7 +110,7 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
-        viewModel.newerCount.observe(viewLifecycleOwner) {
+        viewModel.newerCount?.observe(viewLifecycleOwner) {
             binding.navBar.isVisible = it != 0
             binding.buttonNotice.text = it.toString()
             binding.ViewNewPosts.isVisible = it != 0

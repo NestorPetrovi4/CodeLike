@@ -26,4 +26,8 @@
     <string name="close">Отменить</string>
     <string name="error_edit_posts">Пост ожидает отправки на сервер</string>
     <string name="goviewnewposts">Свежие записи</string>
+    <string name="menu_save">Сохранить</string>
+    <string name="description_photo">Фото</string>
+    <string name="description_select_photo">Выбрать фото</string>
+    <string name="description_take_photo">Камера</string> />
 </resources>

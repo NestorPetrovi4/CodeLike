@@ -1,31 +1,42 @@
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.db.AppDB
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.File
 
 val empty = Post(id = 0, author = "", content = "", published = "")
+
+val noPhoto = PhotoModel()
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository =
         PostRepositoryImpl(AppDB.getInstance(application).postDAO())
     val baseUrlImageAvatar = repository.getBASE_URL() + "/avatars/"
-    val baseUrlImage = repository.getBASE_URL() + "/images/"
+    val baseUrlImage = repository.getBASE_URL() + "/media/"
 
     private val _data = repository.data.map { FeedModel(posts = it, empty = it.isEmpty()) }
         .asLiveData(Dispatchers.Default)
@@ -35,8 +46,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _dataState = MutableLiveData(FeedModelState())
     val dataState: LiveData<FeedModelState>
         get() = _dataState
-    val newerCount: LiveData<Int> =
-        _data.switchMap { repository.getNewerCount().asLiveData(Dispatchers.Default) }
+
+    private val _photo = MutableLiveData(noPhoto)
+    val photo: LiveData<PhotoModel>
+        get() = _photo
+
+
+    private val _newerCount = MutableLiveData(_data.switchMap {
+        repository.getNewerCount().asLiveData(Dispatchers.Default)
+    })
+    val newerCount: LiveData<Int>?
+        get() = _newerCount.value
 
     val edited = MutableLiveData(empty)
 
@@ -69,14 +89,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 try {
                     _postCreated.postValue(Unit)
                     _dataState.postValue(FeedModelState(loading = true))
-                    repository.save(
-                        it.copy(
-                            content = content,
-                            id = if (it.id == 0) Int.MAX_VALUE else it.id
-                        )
-                    )
+                    val copyPost =
+                        it.copy(content = content, id = if (it.id == 0) Int.MAX_VALUE else it.id)
+                    when (_photo.value) {
+                        noPhoto -> repository.save(copyPost)
+                        else -> _photo.value?.file?.let { file ->
+                            repository.saveWithAttachment(copyPost, file)
+                        }
+                    }
                     edited.value = empty
                     _dataState.postValue(FeedModelState())
+                    _photo.value = noPhoto
                 } catch (e: Exception) {
                     _dataState.postValue(
                         FeedModelState(
@@ -172,7 +195,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun getRepoKey(key: String) =
         viewModelScope.launch { _repoEntity.value = repository.getRepoKey(key) }
 
-    fun setReadAll() = viewModelScope.launch { repository.setReadAll() }
+    fun setReadAll() = viewModelScope.launch {
+        repository.setReadAll()
+        _newerCount.value =repository.getNewerCount().asLiveData(Dispatchers.Default)
+    }
+    fun changePhoto(uri: Uri?, file: File?) {
+        _photo.value = PhotoModel(uri, file)
+    }
+
+    fun dropPhoto() {
+        _photo.value = noPhoto
+    }
 }
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {

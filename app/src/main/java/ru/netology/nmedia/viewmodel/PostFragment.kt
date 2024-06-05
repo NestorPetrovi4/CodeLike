@@ -1,4 +1,4 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.viewmodel
 
 import PostViewModel
 import android.os.Bundle
@@ -11,8 +11,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import ru.netology.nmedia.FeedFragment.Companion.intArg
-import ru.netology.nmedia.FeedFragment.Companion.textArg
+import ru.netology.nmedia.R
+import ru.netology.nmedia.viewmodel.FeedFragment.Companion.intArg
+import ru.netology.nmedia.viewmodel.FeedFragment.Companion.textArg
 import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.adapter.load
 import ru.netology.nmedia.adapter.loadAvatar
@@ -56,7 +57,7 @@ class PostFragment() : Fragment() {
                             viewModel.changeContentAndSave(state.errorAddPost.content)
                         }
                     }.setAnchorView(binding.barrier)
-                        .show()
+                    .show()
             }
         }
 
@@ -96,6 +97,14 @@ class PostFragment() : Fragment() {
             playYoutube.setOnClickListener {
                 startActivity(FeedFragment.startVideo(post))
             }
+            attachmentImage.setOnClickListener {
+                post.attachment?.url.let {
+                    findNavController().navigate(
+                        R.id.action_postFragment_to_imagePost,
+                        Bundle().apply { textArg = viewModel.baseUrlImage + post.attachment?.url })
+                }
+            }
+
             if (post.attachment?.url.isNullOrEmpty()) {
                 attachmentImage.isVisible = false
             } else {

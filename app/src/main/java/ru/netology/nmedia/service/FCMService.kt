@@ -15,8 +15,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
-import ru.netology.nmedia.AppActivity
-import ru.netology.nmedia.FeedFragment
+import ru.netology.nmedia.viewmodel.AppActivity
 import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.util.AndroidUtils
