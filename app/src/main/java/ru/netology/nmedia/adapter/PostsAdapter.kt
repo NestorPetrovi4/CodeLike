@@ -10,7 +10,7 @@ import androidx.core.view.isVisible
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import ru.netology.nmedia.FeedFragment.Companion.intArg
+import ru.netology.nmedia.viewmodel.FeedFragment.Companion.intArg
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -23,6 +23,7 @@ interface OnInteractionListener {
     fun onRemove(post: Post) {}
     fun onEdit(post: Post) {}
     fun onYoutubeSee(post: Post)
+    fun onImageSee(post: Post)
 }
 
 class PostsAdapter(
@@ -79,6 +80,9 @@ open class PostViewHolder(
             }
             playYoutube.setOnClickListener {
                 onInteractionListener.onYoutubeSee(post)
+            }
+            attachmentImage.setOnClickListener{
+                onInteractionListener.onImageSee(post)
             }
 
             avatar.loadAvatar(baseUrlImageAvatar + post.authorAvatar)

@@ -13,3 +13,5 @@ data class Post(
     val attachment: Attachment? = null,
     val sendServer: Boolean = false
 )
+
+data class Media(val id: String)

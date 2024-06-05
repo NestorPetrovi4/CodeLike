@@ -4,22 +4,25 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
-import okhttp3.Dispatcher
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dao.PostDAO
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.RepoEntity
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
+import java.io.File
 
 class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
     override val data: Flow<List<Post>> = dao.getReadMeAll().map(List<PostEntity>::toDto)
@@ -132,10 +135,6 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
                 val body = response.body() ?: continue
                 dao.save(body.toEntity(false))
                 lastId = if (body.isNotEmpty()) body.maxBy { it.id }.id else lastId
-//                val notReadMe = flow<List<PostEntity>> {
-//                    emit(dao.getReadMeAll(false).single())
-//                }
-//                val listNotRead = notReadMe.single().size
                 emit(dao.getNotReadMeMaxPost().size)
             } catch (e: CancellationException) {
                 throw e
@@ -145,5 +144,18 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
 
     }
     override suspend fun setReadAll() = dao.setReadAll()
+    override suspend fun saveWithAttachment(post: Post, file: File) {
+        save(post.copy(attachment = Attachment(upload(file).id, "", AttachmentType.IMAGE)))
+    }
 
+    private suspend fun upload(file: File): Media {
+        try {
+            val part = MultipartBody.Part.createFormData("file", file.name, file.asRequestBody())
+            val response = ApiService.service.upload(part)
+            if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
+            return response.body() ?: throw UnknownException("Body is null")
+        } catch (e: NetworkException) {
+            throw e
+        }
+    }
 }

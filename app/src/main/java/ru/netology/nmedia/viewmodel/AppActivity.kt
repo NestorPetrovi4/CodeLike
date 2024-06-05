@@ -1,4 +1,4 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.viewmodel
 
 import android.content.pm.PackageManager
 import android.os.Build
@@ -11,7 +11,8 @@ import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
-import ru.netology.nmedia.FeedFragment.Companion.textArg
+import ru.netology.nmedia.viewmodel.FeedFragment.Companion.textArg
+import ru.netology.nmedia.R
 
 
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
