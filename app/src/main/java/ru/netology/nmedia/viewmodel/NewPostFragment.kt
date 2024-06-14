@@ -21,6 +21,7 @@ import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.viewmodel.FeedFragment.Companion.textArg
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.util.AndroidUtils.focusAndShowKeyboard
@@ -88,6 +89,23 @@ class NewPostFragment : Fragment() {
                         true
                     }
 
+                    R.id.logout -> {
+                        if (AppAuth.getInstance().state.value?.token != null) {
+                            Snackbar.make(
+                                binding.root,
+                                "${getString(R.string.message_logout)}",
+                                Snackbar.LENGTH_SHORT
+                            )
+                                .setAction(R.string.logout) {
+                                    AppAuth.getInstance().clearAuth()
+                                    findNavController().navigateUp()
+                                }
+                                .setAnchorView(binding.edit)
+                                .show()
+                        }
+                        true
+                    }
+
                     else -> false
                 }
             }
@@ -113,7 +131,7 @@ class NewPostFragment : Fragment() {
             beforeClose()
         }
 
-        binding.removePhoto.setOnClickListener{
+        binding.removePhoto.setOnClickListener {
             viewModel.dropPhoto()
         }
 
@@ -132,7 +150,7 @@ class NewPostFragment : Fragment() {
             if (binding.edit.text.isEmpty()) binding.edit.setText(viewModel.repoEntity.value)
         }
 
-        viewModel.photo.observe(viewLifecycleOwner){
+        viewModel.photo.observe(viewLifecycleOwner) {
             binding.photoContainer.isVisible = it.file != null
             binding.photo.setImageURI(it.uri)
         }

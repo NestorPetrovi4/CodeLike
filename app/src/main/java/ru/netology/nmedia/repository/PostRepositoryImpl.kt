@@ -7,10 +7,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dao.PostDAO
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Media
@@ -143,9 +146,48 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
         }
 
     }
+
     override suspend fun setReadAll() = dao.setReadAll()
     override suspend fun saveWithAttachment(post: Post, file: File) {
         save(post.copy(attachment = Attachment(upload(file).id, "", AttachmentType.IMAGE)))
+    }
+
+    override suspend fun signIn(login: String, password: String) {
+        try {
+            val response = ApiService.service.signIn(login, password)
+            if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
+            val tokenAuth = response.body() ?: throw Exception("Body is null")
+            AppAuth.getInstance().setAuth(tokenAuth.id, tokenAuth.token)
+        } catch (e: NetworkException) {
+            throw e
+        }
+    }
+
+    override suspend fun signUp(name: String, login: String, password: String) {
+        try {
+            val response = ApiService.service.signUp(name.toRequestBody("text/plain".toMediaType()),
+                login.toRequestBody("text/plain".toMediaType()),
+                password.toRequestBody("text/plain".toMediaType()))
+            if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
+            val tokenAuth = response.body() ?: throw Exception("Body is null")
+            AppAuth.getInstance().setAuth(tokenAuth.id, tokenAuth.token)
+        } catch (e: NetworkException) {
+            throw e
+        }
+    }
+
+    override suspend fun signUp(name: String, login: String, password: String, file: File) {
+        try {
+            val response = ApiService.service.signUp(name.toRequestBody("text/plain".toMediaType()),
+                login.toRequestBody("text/plain".toMediaType()),
+                password.toRequestBody("text/plain".toMediaType()),
+                MultipartBody.Part.createFormData("file", file.name, file.asRequestBody()))
+            if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
+            val tokenAuth = response.body() ?: throw Exception("Body is null")
+            AppAuth.getInstance().setAuth(tokenAuth.id, tokenAuth.token)
+        } catch (e: NetworkException) {
+            throw e
+        }
     }
 
     private suspend fun upload(file: File): Media {

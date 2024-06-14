@@ -10,12 +10,14 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 
@@ -29,7 +31,20 @@ class FeedFragment : Fragment() {
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
                 if (!post.sendServer) {
-                    viewModel.likeById(post.id)
+                    if (AppAuth.getInstance().state.value?.token != null) {
+                        viewModel.likeById(post.id)
+                    } else {
+                        Snackbar.make(
+                            binding.root,
+                            "${getString(R.string.not_authorized)}",
+                            Snackbar.LENGTH_SHORT
+                        )
+                            .setAction(R.string.sign_in) {
+                                findNavController().navigate(R.id.authenticationFragment)
+                            }
+                            .setAnchorView(binding.add)
+                            .show()
+                    }
                 } else {
                     Snackbar.make(
                         binding.root,
@@ -66,7 +81,8 @@ class FeedFragment : Fragment() {
             override fun onYoutubeSee(post: Post) {
                 startActivity(startVideo(post))
             }
-            override fun onImageSee(post: Post){
+
+            override fun onImageSee(post: Post) {
                 post.attachment?.url.let {
                     findNavController().navigate(
                         R.id.action_feedFragment_to_imagePost,
@@ -116,15 +132,28 @@ class FeedFragment : Fragment() {
             binding.ViewNewPosts.isVisible = it != 0
         }
         binding.add.setOnClickListener {
-            viewModel.closeEdit()
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if (AppAuth.getInstance().state.value?.token != null) {
+                viewModel.closeEdit()
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    "${getString(R.string.not_authorized)}",
+                    Snackbar.LENGTH_SHORT
+                )
+                    .setAction(R.string.sign_in) {
+                        findNavController().navigate(R.id.authenticationFragment)
+                    }
+                    .setAnchorView(binding.add)
+                    .show()
+            }
         }
 
         binding.buttonNotice.setOnClickListener {
             setRedAll(binding, viewModel)
         }
 
-        binding.ViewNewPosts.setOnClickListener{
+        binding.ViewNewPosts.setOnClickListener {
             setRedAll(binding, viewModel)
         }
 
@@ -133,6 +162,8 @@ class FeedFragment : Fragment() {
             viewModel.loadPosts()
             binding.swiperFresh.isRefreshing = false
         }
+
+
 
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {

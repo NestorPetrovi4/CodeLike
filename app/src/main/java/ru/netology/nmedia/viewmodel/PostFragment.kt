@@ -17,6 +17,7 @@ import ru.netology.nmedia.viewmodel.FeedFragment.Companion.textArg
 import ru.netology.nmedia.adapter.PostViewHolder
 import ru.netology.nmedia.adapter.load
 import ru.netology.nmedia.adapter.loadAvatar
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 
@@ -37,6 +38,7 @@ class PostFragment() : Fragment() {
         viewModel.data.observe(viewLifecycleOwner) {
             post = viewModel.getById(id)
             setValueElement(binding, post)
+            binding.menu.isVisible = post.ownerByMe
         }
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
@@ -68,7 +70,20 @@ class PostFragment() : Fragment() {
             buttonHeart.isChecked = post.likedByMe
             buttonHeart?.setOnClickListener {
                 if (!post.sendServer) {
-                    viewModel.likeById(post.id)
+                    if (AppAuth.getInstance().state.value?.token != null) {
+                        viewModel.likeById(post.id)
+                    } else {
+                        Snackbar.make(
+                            binding.root,
+                            "${getString(R.string.not_authorized)}",
+                            Snackbar.LENGTH_SHORT
+                        )
+                            .setAction(R.string.sign_in) {
+                                findNavController().navigate(R.id.authenticationFragment)
+                            }
+                            .setAnchorView(buttonHeart)
+                            .show()
+                    }
                 } else {
                     Snackbar.make(
                         binding.root,
@@ -112,6 +127,8 @@ class PostFragment() : Fragment() {
                 attachmentImage.load(viewModel.baseUrlImage + post.attachment?.url)
             }
             avatar.loadAvatar(viewModel.baseUrlImageAvatar + post.authorAvatar)
+
+            menu.isVisible = post.ownerByMe
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {

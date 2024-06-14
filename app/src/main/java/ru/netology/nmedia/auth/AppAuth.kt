@@ -1,0 +1,55 @@
+package ru.netology.nmedia.auth
+
+import android.content.Context
+import androidx.core.content.edit
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import ru.netology.nmedia.db.Token
+
+class AppAuth private constructor(context: Context) {
+    private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+    private val _state = MutableStateFlow<Token?>(null)
+    val state: StateFlow<Token?> = _state.asStateFlow()
+
+    init {
+        val id = prefs.getInt(ID_KEY, 0)
+        val token = prefs.getString(TOKEN_KEY, null)
+        if (id != 0 && token != null) {
+            _state.value = Token(id, token)
+        } else {
+            prefs.edit {clear()}
+        }
+    }
+    @Synchronized
+    fun setAuth(id: Int, token: String){
+        _state.value = Token(id, token)
+        prefs.edit {
+            putInt(ID_KEY, id)
+            putString(TOKEN_KEY, token)
+        }
+    }
+
+    @Synchronized
+    fun clearAuth(){
+        _state.value = null
+        prefs.edit {
+            clear()
+        }
+    }
+
+    companion object {
+        private const val ID_KEY = "ID_KEY"
+        private const val TOKEN_KEY = "TOKEN_KEY"
+
+        private var INSTANCE: AppAuth? = null
+
+        fun getInstance() = requireNotNull(INSTANCE){
+            "Error get init before"
+        }
+
+        fun init(context: Context){
+            INSTANCE = AppAuth(context.applicationContext)
+        }
+    }
+}
