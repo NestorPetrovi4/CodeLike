@@ -29,5 +29,14 @@
     <string name="description_photo">Photo</string>
     <string name="description_select_photo">Select photo</string>
     <string name="description_take_photo">Take photo</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="logout">Logout</string>
+    <string name="user">User</string>
+    <string name="user_name">Name</string>
+    <string name="password">Password</string>
+    <string name="password_confirm">Password confirmation</string>
+    <string name="not_authorized">You have not been authorized</string>
+    <string name="message_logout">After logging out, saving will not be available</string>
     />
 </resources>

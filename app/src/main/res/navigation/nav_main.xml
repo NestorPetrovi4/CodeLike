@@ -19,12 +19,19 @@
         <action
             android:id="@+id/action_feedFragment_to_imagePost"
             app:destination="@id/imagePost" />
+        <action
+            android:id="@+id/action_feedFragment_to_authenticationFragment"
+            app:destination="@id/authenticationFragment" />
     </fragment>
     <fragment
         android:id="@+id/newPostFragment"
         android:name="ru.netology.nmedia.viewmodel.NewPostFragment"
         android:label="NewPostFragment"
-        tools:layout="@layout/fragment_new_post"/>
+        tools:layout="@layout/fragment_new_post">
+        <action
+            android:id="@+id/action_newPostFragment_to_authenticationFragment"
+            app:destination="@id/authenticationFragment" />
+    </fragment>
     <fragment
         android:id="@+id/postFragment"
         android:name="ru.netology.nmedia.viewmodel.PostFragment"
@@ -36,10 +43,22 @@
         <action
             android:id="@+id/action_postFragment_to_imagePost"
             app:destination="@id/imagePost" />
+        <action
+            android:id="@+id/action_postFragment_to_authenticationFragment"
+            app:destination="@id/authenticationFragment" />
     </fragment>
     <fragment
         android:id="@+id/imagePost"
         android:name="ru.netology.nmedia.viewmodel.ImagePost"
         android:label="fragment_image_post"
-        tools:layout="@layout/fragment_image_post" />
+        tools:layout="@layout/fragment_image_post" >
+        <action
+            android:id="@+id/action_imagePost_to_authenticationFragment"
+            app:destination="@id/authenticationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/authenticationFragment"
+        android:name="ru.netology.nmedia.viewmodel.AuthenticationFragment"
+        android:label="fragment_authentication"
+        tools:layout="@layout/fragment_authentication" />
 </navigation>

@@ -20,4 +20,7 @@ interface PostRepository {
     fun getNewerCount(): Flow<Int>
     suspend fun setReadAll()
     suspend fun saveWithAttachment(post: Post, file: File)
+    suspend fun signIn(login: String, password: String)
+    suspend fun signUp(name: String, login: String, password: String)
+    suspend fun signUp(name: String, login: String, password: String, file: File)
 }

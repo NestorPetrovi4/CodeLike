@@ -29,5 +29,15 @@
     <string name="menu_save">Сохранить</string>
     <string name="description_photo">Фото</string>
     <string name="description_select_photo">Выбрать фото</string>
-    <string name="description_take_photo">Камера</string> />
+    <string name="description_take_photo">Камера</string>
+    <string name="sign_in">Вход в систему</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="logout">Выход из системы</string>
+    <string name="user">Пользователь</string>
+    <string name="user_name">Имя</string>
+    <string name="password">Пароль</string>
+    <string name="password_confirm">Подтверждение пароля</string>
+    <string name="not_authorized">Вы не прошли авторизацию</string>
+    <string name="message_logout">После выхода из ситемы сохранение будет недоступно</string>
+    />
 </resources>
