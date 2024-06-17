@@ -22,6 +22,7 @@ class AuthenticationFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        var isSignIn = true
         val viewModel: AuthViewModel by viewModels(ownerProducer = ::requireParentFragment)
         val binding = FragmentAuthenticationBinding.inflate(inflater, container, false)
         val pickPhotoLauncher =
@@ -49,13 +50,15 @@ class AuthenticationFragment : Fragment() {
             binding.signIn.isVisible = false
             binding.photoContainer.isVisible = true
             binding.pickPhoto.isVisible = true
+            isSignIn = false
         }
+
         binding.signIn.setOnClickListener {
             viewModel.signIn(binding.user.text.toString(), binding.password.text.toString())
         }
 
         binding.signUp.setOnClickListener {
-            binding.password.text.isNotBlank().let {
+            binding.password.text?.isNotBlank().let {
                 if(binding.password.text.toString() == binding.confirmPassword.text.toString()) {
                     viewModel.signUp(binding.name.text.toString(), binding.user.text.toString(),
                         binding.password.text.toString())
@@ -100,7 +103,7 @@ class AuthenticationFragment : Fragment() {
             binding.photoContainer.isVisible = it.file != null
             binding.photo.setImageURI(it.uri)
             binding.removePhoto.isVisible = binding.photoContainer.isVisible
-            binding.pickPhoto.isVisible = !binding.photoContainer.isVisible
+            binding.pickPhoto.isVisible = !binding.photoContainer.isVisible && !isSignIn
         }
 
         return binding.root

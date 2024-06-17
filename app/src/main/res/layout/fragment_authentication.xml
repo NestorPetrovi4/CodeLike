@@ -15,9 +15,10 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/description_select_photo"
         android:padding="@dimen/common_spacing"
-        app:icon="@drawable/ic_photo_24dp"
-        android:visibility="gone"/>
-    <EditText
+        android:visibility="gone"
+        app:icon="@drawable/ic_photo_24dp" />
+
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,7 +29,7 @@
         android:visibility="gone" />
 
 
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,7 +38,7 @@
         android:inputType="text"
         android:padding="16dp" />
 
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,7 +47,7 @@
         android:inputType="textPassword"
         android:padding="16dp" />
 
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/confirmPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
