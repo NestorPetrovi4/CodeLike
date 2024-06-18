@@ -15,6 +15,7 @@
     <string name="original_text_post">Оригинальный текст Поста</string>
     <string name="edit_message">Редактируемое сообщение</string>
     <string name="channel_remote_name">Уведомления сервера</string>
+    <string name="channel_remote">Уведомление: %1$s</string>
     <string name="channel_remote_description">Уведомления с удаленного сервера</string>
     <string name="notification_user_liked">Пользователю %1$s понравился пост %2$s\\\'s</string>
     <string name="google_play_unavailable">Сервисы Google Api недоступны</string>

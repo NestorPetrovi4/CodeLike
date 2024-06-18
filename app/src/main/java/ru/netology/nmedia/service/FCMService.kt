@@ -17,6 +17,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.viewmodel.AppActivity
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.util.AndroidUtils
 import kotlin.random.Random
@@ -51,13 +52,25 @@ class FCMService : FirebaseMessagingService() {
                         Like::class.java
                     )
                 )
+
                 Action.NEWPOST -> handleNewPost(
                     gson.fromJson(
                         message.data[content],
                         Post::class.java
                     )
                 )
+
                 null -> handleNull(getString(R.string.app_err_message_received))
+            }
+            return@let
+        }.also {
+            message.data[content]?.let {
+                visibleMessage(
+                    gson.fromJson(
+                        message.data[content],
+                        Like::class.java
+                    )
+                )
             }
         }
     }
@@ -65,7 +78,7 @@ class FCMService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         val postViewModel = PostViewModel(application)
         postViewModel.addRepoValue("token", token)
-        println(token)
+        AppAuth.getInstance().sendPushToken(token)
     }
 
     private fun handleLike(content: Like) {
@@ -84,14 +97,42 @@ class FCMService : FirebaseMessagingService() {
         notify(notification)
     }
 
+    private fun visibleMessage(content: Like) {
+        if (content.recipientId == null || AppAuth.getInstance().state.value?.id == content.recipientId) {
+            val notification = NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(
+                    getString(
+                        R.string.channel_remote,
+                        content.content,
+                    )
+                )
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .build()
+
+            notify(notification)
+        } else if (content.recipientId == 0 && AppAuth.getInstance().state.value?.id != 0) {
+            AppAuth.getInstance().sendPushToken()
+        } else if (content.recipientId != 0 && AppAuth.getInstance().state.value?.id != content.recipientId) {
+            AppAuth.getInstance().sendPushToken()
+        }
+    }
+
     private fun handleNewPost(content: Post) {
         val intent = Intent(this, AppActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(
                 getString(
-                    R.string.notification_new_post, content.author))
+                    R.string.notification_new_post, content.author
+                )
+            )
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content.content))
@@ -132,4 +173,7 @@ data class Like(
     val userName: String,
     val postId: Long,
     val postAuthor: String,
+    val recipientId: Int?,
+    val content: String
+
 )
