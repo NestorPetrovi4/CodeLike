@@ -2,10 +2,18 @@ package ru.netology.nmedia.auth
 
 import android.content.Context
 import androidx.core.content.edit
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.db.Token
+import ru.netology.nmedia.dto.PushToken
 
 class AppAuth private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -18,23 +26,38 @@ class AppAuth private constructor(context: Context) {
         if (id != 0 && token != null) {
             _state.value = Token(id, token)
         } else {
-            prefs.edit {clear()}
+            prefs.edit { clear() }
         }
+        sendPushToken()
     }
+
     @Synchronized
-    fun setAuth(id: Int, token: String){
+    fun setAuth(id: Int, token: String) {
         _state.value = Token(id, token)
         prefs.edit {
             putInt(ID_KEY, id)
             putString(TOKEN_KEY, token)
         }
+        sendPushToken()
     }
 
     @Synchronized
-    fun clearAuth(){
+    fun clearAuth() {
         _state.value = null
         prefs.edit {
             clear()
+        }
+        sendPushToken()
+    }
+
+    fun sendPushToken(token: String? = null) {
+        CoroutineScope(Dispatchers.Default).launch {
+            try {
+                val tokenPush = PushToken(token ?: Firebase.messaging.token.await())
+                ApiService.service.saveToken(tokenPush)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -44,11 +67,11 @@ class AppAuth private constructor(context: Context) {
 
         private var INSTANCE: AppAuth? = null
 
-        fun getInstance() = requireNotNull(INSTANCE){
+        fun getInstance() = requireNotNull(INSTANCE) {
             "Error get init before"
         }
 
-        fun init(context: Context){
+        fun init(context: Context) {
             INSTANCE = AppAuth(context.applicationContext)
         }
     }

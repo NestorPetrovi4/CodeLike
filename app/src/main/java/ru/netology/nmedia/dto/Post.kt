@@ -1,4 +1,5 @@
 package ru.netology.nmedia.dto
+
 data class Post(
     val id: Int,
     val author: String,
@@ -17,3 +18,5 @@ data class Post(
 )
 
 data class Media(val id: String)
+
+data class PushToken(val token: String)
