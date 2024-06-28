@@ -50,9 +50,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             _dataState.postValue(FeedModelState(loading = true))
             _photo.value?.file?.let { file ->
                 repository.signUp(name, login, password, file)
-            }.also() {
-                repository.signUp(name, login, password)
-            }
+            } ?: repository.signUp(name, login, password)
             _dataState.postValue(FeedModelState())
         } catch (e: NetworkException) {
             _dataState.postValue(FeedModelState(error = true, errorText = e.msg))

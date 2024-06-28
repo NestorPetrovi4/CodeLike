@@ -46,7 +46,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         }
 
         checkGoogleApiAvailability()
-
         val viewModel by viewModels<AuthViewModel>()
         var currentMenuProvider: MenuProvider? = null
         viewModel.auth.observe(this) {
