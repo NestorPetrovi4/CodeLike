@@ -7,13 +7,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import ru.netology.nmedia.dao.PostDAO
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
 class DbModule {
-
     @Singleton
     @Provides
     fun provideDB(
@@ -22,7 +20,4 @@ class DbModule {
     ): AppDB = Room.databaseBuilder(context, AppDB::class.java, "app.db")
         //.allowMainThreadQueries()
         .build()
-
-    @Provides
-    fun providePostDAO(appDB: AppDB): PostDAO = appDB.postDAO()
 }

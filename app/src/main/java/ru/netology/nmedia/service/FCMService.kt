@@ -1,6 +1,5 @@
 package ru.netology.nmedia.service
 
-import PostViewModel
 import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
@@ -22,6 +21,7 @@ import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.util.AndroidUtils
+import ru.netology.nmedia.viewmodel.PostViewModel
 import javax.inject.Inject
 import kotlin.random.Random
 

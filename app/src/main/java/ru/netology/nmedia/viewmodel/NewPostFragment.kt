@@ -1,6 +1,5 @@
 package ru.netology.nmedia.viewmodel
 
-import PostViewModel
 import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
