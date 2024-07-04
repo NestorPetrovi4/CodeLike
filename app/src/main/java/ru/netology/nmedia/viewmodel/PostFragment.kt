@@ -8,9 +8,10 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.viewmodel.FeedFragment.Companion.intArg
 import ru.netology.nmedia.viewmodel.FeedFragment.Companion.textArg
@@ -20,13 +21,18 @@ import ru.netology.nmedia.adapter.loadAvatar
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PostFragment() : Fragment() {
+    @Inject
+    lateinit var appAuth: AppAuth
+
+    val viewModel: PostViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
         val binding = CardPostBinding.inflate(inflater, container, false)
         var id = 0
         arguments?.intArg?.let {
@@ -70,7 +76,7 @@ class PostFragment() : Fragment() {
             buttonHeart.isChecked = post.likedByMe
             buttonHeart?.setOnClickListener {
                 if (!post.sendServer) {
-                    if (AppAuth.getInstance().state.value?.token != null) {
+                    if (appAuth.state.value?.token != null) {
                         viewModel.likeById(post.id)
                     } else {
                         Snackbar.make(
