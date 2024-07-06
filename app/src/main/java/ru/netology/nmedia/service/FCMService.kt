@@ -1,6 +1,5 @@
 package ru.netology.nmedia.service
 
-import PostViewModel
 import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
@@ -15,18 +14,29 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.viewmodel.AppActivity
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.util.AndroidUtils
+import ru.netology.nmedia.viewmodel.PostViewModel
+import javax.inject.Inject
 import kotlin.random.Random
 
+@AndroidEntryPoint
 class FCMService : FirebaseMessagingService() {
     private val action = "action"
     private val content = "content"
     private val channelId = "remote"
     private val gson = Gson()
+
+    @Inject
+    lateinit var appAuth: AppAuth
+
+    @Inject
+    lateinit var repository: PostRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -76,9 +86,9 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        val postViewModel = PostViewModel(application)
+        val postViewModel = PostViewModel(repository, appAuth)
         postViewModel.addRepoValue("token", token)
-        AppAuth.getInstance().sendPushToken(token)
+        appAuth.sendPushToken(token)
     }
 
     private fun handleLike(content: Like) {
@@ -98,7 +108,7 @@ class FCMService : FirebaseMessagingService() {
     }
 
     private fun visibleMessage(content: Like) {
-        if (content.recipientId == null || AppAuth.getInstance().state.value?.id == content.recipientId) {
+        if (content.recipientId == null || appAuth.state.value?.id == content.recipientId) {
             val notification = NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(
@@ -111,10 +121,10 @@ class FCMService : FirebaseMessagingService() {
                 .build()
 
             notify(notification)
-        } else if (content.recipientId == 0 && AppAuth.getInstance().state.value?.id != 0) {
-            AppAuth.getInstance().sendPushToken()
-        } else if (content.recipientId != 0 && AppAuth.getInstance().state.value?.id != content.recipientId) {
-            AppAuth.getInstance().sendPushToken()
+        } else if (content.recipientId == 0 && appAuth.state.value?.id != 0) {
+            appAuth.sendPushToken()
+        } else if (content.recipientId != 0 && appAuth.state.value?.id != content.recipientId) {
+            appAuth.sendPushToken()
         }
     }
 

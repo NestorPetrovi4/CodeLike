@@ -1,6 +1,5 @@
 package ru.netology.nmedia.viewmodel
 
-import PostViewModel
 import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,19 +15,24 @@ import androidx.core.net.toFile
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.viewmodel.FeedFragment.Companion.textArg
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.util.AndroidUtils.focusAndShowKeyboard
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class NewPostFragment : Fragment() {
+    private val viewModel: PostViewModel by activityViewModels()
+    @Inject
+    lateinit var appAuth: AppAuth
 
-    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
     private lateinit var binding: FragmentNewPostBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,14 +94,14 @@ class NewPostFragment : Fragment() {
                     }
 
                     R.id.logout -> {
-                        if (AppAuth.getInstance().state.value?.token != null) {
+                        if (appAuth.state.value?.token != null) {
                             Snackbar.make(
                                 binding.root,
                                 "${getString(R.string.message_logout)}",
                                 Snackbar.LENGTH_SHORT
                             )
                                 .setAction(R.string.logout) {
-                                    AppAuth.getInstance().clearAuth()
+                                    appAuth.clearAuth()
                                     findNavController().navigateUp()
                                 }
                                 .setAnchorView(binding.edit)

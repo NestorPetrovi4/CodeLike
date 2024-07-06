@@ -1,6 +1,5 @@
 package ru.netology.nmedia.adapter
 
-import PostDiffCallback
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import ru.netology.nmedia.viewmodel.FeedFragment.Companion.intArg
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.viewmodel.PostDiffCallback
 import java.math.RoundingMode
 import java.text.DecimalFormat
 

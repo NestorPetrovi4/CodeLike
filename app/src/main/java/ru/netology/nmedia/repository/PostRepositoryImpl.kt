@@ -12,7 +12,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.BuildConfig
-import ru.netology.nmedia.api.ApiService
+import ru.netology.nmedia.api.ServiceAPI
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dao.PostDAO
 import ru.netology.nmedia.dto.Attachment
@@ -26,8 +26,12 @@ import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.NetworkException
 import ru.netology.nmedia.error.UnknownException
 import java.io.File
+import javax.inject.Inject
 
-class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
+class PostRepositoryImpl @Inject constructor(private val dao: PostDAO,
+    private val apiService: ServiceAPI,
+    private val appAuth: AppAuth
+) : PostRepository {
     override val data: Flow<List<Post>> = dao.getReadMeAll().map(List<PostEntity>::toDto)
         .flowOn(Dispatchers.Default)
 
@@ -37,7 +41,7 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
 
     override suspend fun getAll() {
         try {
-            val response = ApiService.service.getAll()
+            val response = apiService.getAll()
             if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
             val posts = response.body() ?: throw UnknownException("Body is null")
             dao.save(posts.toEntity())
@@ -50,7 +54,7 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
         }
     }
 
-    override suspend fun getById(id: Int): Post = ApiService.service.getById(id)
+    override suspend fun getById(id: Int): Post = apiService.getById(id)
 
     override suspend fun likeById(id: Int) {
         val post = dao.getById(id)
@@ -61,7 +65,7 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
         }
         try {
             if (send || post.sendServer) {
-                ApiService.service.likeById(id)
+                apiService.likeById(id)
                 dao.sendenServerById(post.id)
             }
         } catch (e: NetworkException) {
@@ -78,7 +82,7 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
         }
         try {
             if (send || post.sendServer) {
-                ApiService.service.unLikeById(id)
+                apiService.unLikeById(id)
                 dao.sendenServerById(post.id)
             }
         } catch (e: NetworkException) {
@@ -96,7 +100,7 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
             send = true
         }
         try {
-            if (send || post == null) ApiService.service.removeByID(id)
+            if (send || post == null) apiService.removeByID(id)
         } catch (e: NetworkException) {
             throw e
         }
@@ -105,8 +109,8 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
     override suspend fun save(post: Post) {
         dao.save(PostEntity.fromDTO(post))
         try {
-            ApiService.service.save(if (post.id == Int.MAX_VALUE) post.copy(id = 0) else post)
-            val response = ApiService.service.getAll()
+            apiService.save(if (post.id == Int.MAX_VALUE) post.copy(id = 0) else post)
+            val response = apiService.getAll()
             if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
             val posts = response.body() ?: throw UnknownException("Body is null")
             dao.save(posts.toEntity())
@@ -134,7 +138,7 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
         while (true) {
             delay(30_000)
             try {
-                val response = ApiService.service.getNewer(lastId)
+                val response = apiService.getNewer(lastId)
                 val body = response.body() ?: continue
                 dao.save(body.toEntity(false))
                 lastId = if (body.isNotEmpty()) body.maxBy { it.id }.id else lastId
@@ -154,10 +158,10 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
 
     override suspend fun signIn(login: String, password: String) {
         try {
-            val response = ApiService.service.signIn(login, password)
+            val response = apiService.signIn(login, password)
             if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
             val tokenAuth = response.body() ?: throw Exception("Body is null")
-            AppAuth.getInstance().setAuth(tokenAuth.id, tokenAuth.token)
+            appAuth.setAuth(tokenAuth.id, tokenAuth.token)
         } catch (e: NetworkException) {
             throw e
         }
@@ -165,12 +169,12 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
 
     override suspend fun signUp(name: String, login: String, password: String) {
         try {
-            val response = ApiService.service.signUp(name.toRequestBody("text/plain".toMediaType()),
+            val response = apiService.signUp(name.toRequestBody("text/plain".toMediaType()),
                 login.toRequestBody("text/plain".toMediaType()),
                 password.toRequestBody("text/plain".toMediaType()))
             if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
             val tokenAuth = response.body() ?: throw Exception("Body is null")
-            AppAuth.getInstance().setAuth(tokenAuth.id, tokenAuth.token)
+            appAuth.setAuth(tokenAuth.id, tokenAuth.token)
         } catch (e: NetworkException) {
             throw e
         }
@@ -178,13 +182,13 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
 
     override suspend fun signUp(name: String, login: String, password: String, file: File) {
         try {
-            val response = ApiService.service.signUp(name.toRequestBody("text/plain".toMediaType()),
+            val response = apiService.signUp(name.toRequestBody("text/plain".toMediaType()),
                 login.toRequestBody("text/plain".toMediaType()),
                 password.toRequestBody("text/plain".toMediaType()),
                 MultipartBody.Part.createFormData("file", file.name, file.asRequestBody()))
             if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
             val tokenAuth = response.body() ?: throw Exception("Body is null")
-            AppAuth.getInstance().setAuth(tokenAuth.id, tokenAuth.token)
+            appAuth.setAuth(tokenAuth.id, tokenAuth.token)
         } catch (e: NetworkException) {
             throw e
         }
@@ -193,7 +197,7 @@ class PostRepositoryImpl(private val dao: PostDAO) : PostRepository {
     private suspend fun upload(file: File): Media {
         try {
             val part = MultipartBody.Part.createFormData("file", file.name, file.asRequestBody())
-            val response = ApiService.service.upload(part)
+            val response = apiService.upload(part)
             if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
             return response.body() ?: throw UnknownException("Body is null")
         } catch (e: NetworkException) {
