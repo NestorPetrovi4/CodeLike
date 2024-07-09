@@ -138,7 +138,7 @@ class FeedFragment : Fragment() {
                         } else if (state.errorAddPost != null) {
                             viewModel.changeContentAndSave(state.errorAddPost.content)
                         } else {
-                            viewModel.loadPosts()
+//                            viewModel.loadPosts()
                         }
                     }
                     .setAnchorView(binding.add)
