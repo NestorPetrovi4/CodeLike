@@ -1,5 +1,8 @@
 package ru.netology.nmedia.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -28,12 +31,20 @@ import ru.netology.nmedia.error.UnknownException
 import java.io.File
 import javax.inject.Inject
 
-class PostRepositoryImpl @Inject constructor(private val dao: PostDAO,
+class PostRepositoryImpl @Inject constructor(
+    private val dao: PostDAO,
     private val apiService: ServiceAPI,
     private val appAuth: AppAuth
 ) : PostRepository {
-    override val data: Flow<List<Post>> = dao.getReadMeAll().map(List<PostEntity>::toDto)
-        .flowOn(Dispatchers.Default)
+//    override val data: Flow<List<Post>> = dao.getReadMeAll().map(List<PostEntity>::toDto)
+//        .flowOn(Dispatchers.Default)
+
+    override val data: Flow<PagingData<Post>> = Pager(
+        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        pagingSourceFactory = {
+            PostPagingSource(apiService)
+        }
+    ).flow
 
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
@@ -133,6 +144,7 @@ class PostRepositoryImpl @Inject constructor(private val dao: PostDAO,
     }
 
     override suspend fun getRepoKey(key: String) = dao.getRepoKey(key)
+
     override fun getNewerCount(): Flow<Int> = flow<Int> {
         var lastId = dao.getMaxPostId().firstOrNull()?.id ?: 0
         while (true) {
@@ -169,9 +181,11 @@ class PostRepositoryImpl @Inject constructor(private val dao: PostDAO,
 
     override suspend fun signUp(name: String, login: String, password: String) {
         try {
-            val response = apiService.signUp(name.toRequestBody("text/plain".toMediaType()),
+            val response = apiService.signUp(
+                name.toRequestBody("text/plain".toMediaType()),
                 login.toRequestBody("text/plain".toMediaType()),
-                password.toRequestBody("text/plain".toMediaType()))
+                password.toRequestBody("text/plain".toMediaType())
+            )
             if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
             val tokenAuth = response.body() ?: throw Exception("Body is null")
             appAuth.setAuth(tokenAuth.id, tokenAuth.token)
@@ -182,10 +196,12 @@ class PostRepositoryImpl @Inject constructor(private val dao: PostDAO,
 
     override suspend fun signUp(name: String, login: String, password: String, file: File) {
         try {
-            val response = apiService.signUp(name.toRequestBody("text/plain".toMediaType()),
+            val response = apiService.signUp(
+                name.toRequestBody("text/plain".toMediaType()),
                 login.toRequestBody("text/plain".toMediaType()),
                 password.toRequestBody("text/plain".toMediaType()),
-                MultipartBody.Part.createFormData("file", file.name, file.asRequestBody()))
+                MultipartBody.Part.createFormData("file", file.name, file.asRequestBody())
+            )
             if (!response.isSuccessful) throw NetworkException(" Response code: ${response.code()}")
             val tokenAuth = response.body() ?: throw Exception("Body is null")
             appAuth.setAuth(tokenAuth.id, tokenAuth.token)
