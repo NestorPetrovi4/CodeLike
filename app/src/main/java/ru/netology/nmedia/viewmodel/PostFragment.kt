@@ -38,13 +38,14 @@ class PostFragment() : Fragment() {
             id = it
         } ?: findNavController().navigateUp()
 
-        var post = viewModel.getById(id)
+//        var post = viewModel.getById(id)
+        var post = Post(id = 0, author = "", authorId = 0, content = "", published = "")
 
-        viewModel.data.observe(viewLifecycleOwner) {
-            post = viewModel.getById(id)
-            setValueElement(binding, post)
-            binding.menu.isVisible = post.ownerByMe
-        }
+//        viewModel.data.observe(viewLifecycleOwner) {
+//            post = viewModel.getById(id)
+//            setValueElement(binding, post)
+//            binding.menu.isVisible = post.ownerByMe
+//        }
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             if (state.error) {
@@ -76,7 +77,7 @@ class PostFragment() : Fragment() {
             buttonHeart?.setOnClickListener {
                 if (!post.sendServer) {
                     if (appAuth.state.value?.token != null) {
-                        viewModel.likeById(post.id)
+                        viewModel.likeByPost(post)
                     } else {
                         Snackbar.make(
                             binding.root,

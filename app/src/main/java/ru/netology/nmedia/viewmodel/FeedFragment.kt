@@ -9,10 +9,16 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -36,7 +42,7 @@ class FeedFragment : Fragment() {
             override fun onLike(post: Post) {
                 if (!post.sendServer) {
                     if (appAuth.state.value?.token != null) {
-                        viewModel.likeById(post.id)
+                        viewModel.likeByPost(post)
                     } else {
                         Snackbar.make(
                             binding.root,
@@ -97,14 +103,23 @@ class FeedFragment : Fragment() {
         binding.list.adapter = adapter
         binding.navBar.isVisible = false
         binding.ViewNewPosts.isVisible = false
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            val isNewPost =
-                adapter.currentList.size < state.posts.size && adapter.currentList.isNotEmpty()
-            adapter.submitList(state.posts) {
-                if (isNewPost) binding.list.smoothScrollToPosition(0)
+//        viewModel.data.observe(viewLifecycleOwner) { state ->
+//            val isNewPost =
+//                adapter.currentList.size < state.posts.size && adapter.currentList.isNotEmpty()
+//            adapter.submitList(state.posts) {
+//                if (isNewPost) binding.list.smoothScrollToPosition(0)
+//            }
+//            binding.emptyText.isVisible = state.empty
+//        }
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.data.collectLatest {
+                    adapter.submitData(it)
+                }
             }
-            binding.emptyText.isVisible = state.empty
         }
+
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             if (state.error) {
@@ -123,18 +138,18 @@ class FeedFragment : Fragment() {
                         } else if (state.errorAddPost != null) {
                             viewModel.changeContentAndSave(state.errorAddPost.content)
                         } else {
-                            viewModel.loadPosts()
+//                            viewModel.loadPosts()
                         }
                     }
                     .setAnchorView(binding.add)
                     .show()
             }
         }
-        viewModel.newerCount?.observe(viewLifecycleOwner) {
-            binding.navBar.isVisible = it != 0
-            binding.buttonNotice.text = it.toString()
-            binding.ViewNewPosts.isVisible = it != 0
-        }
+//        viewModel.newerCount?.observe(viewLifecycleOwner) {
+//            binding.navBar.isVisible = it != 0
+//            binding.buttonNotice.text = it.toString()
+//            binding.ViewNewPosts.isVisible = it != 0
+//        }
         binding.add.setOnClickListener {
             if (appAuth.state.value?.token != null) {
                 viewModel.closeEdit()
@@ -163,8 +178,18 @@ class FeedFragment : Fragment() {
 
         binding.swiperFresh.setOnRefreshListener {
             binding.navBar.isVisible = false
-            viewModel.loadPosts()
-            binding.swiperFresh.isRefreshing = false
+            //viewModel.loadPosts()
+            adapter.refresh()
+            //binding.swiperFresh.isRefreshing = false
+        }
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                adapter.loadStateFlow.collectLatest {
+                    binding.swiperFresh.isRefreshing =
+                        it.refresh is LoadState.Loading || it.append is LoadState.Loading || it.prepend is LoadState.Loading
+                }
+            }
         }
 
 
