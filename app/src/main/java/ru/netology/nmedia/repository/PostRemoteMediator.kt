@@ -27,9 +27,9 @@ class PostRemoteMediator(
         state: PagingState<Int, PostEntity>
     ): MediatorResult {
         try {
+            val id = postRemoteKeyDAO.max()
             val resul = when (loadType) {
                 LoadType.REFRESH -> {
-                    val id = postRemoteKeyDAO.max()
                     if (id == null) {
                         serviceAPI.getLatest(state.config.pageSize)
                     } else {
@@ -57,19 +57,30 @@ class PostRemoteMediator(
             appDB.withTransaction {
                 when (loadType) {
                     LoadType.REFRESH -> {
-                        postDAO.clearAll()
-                        postRemoteKeyDAO.save(
-                            listOf(
-                                PostRemoteKeyEntity(
-                                    PostRemoteKeyEntity.KeyType.AFTER,
-                                    body.first().id
-                                ),
-                                PostRemoteKeyEntity(
-                                    PostRemoteKeyEntity.KeyType.BEFORE,
-                                    body.last().id
+                        if (id != null) {
+                            postRemoteKeyDAO.save(
+                                listOf(
+                                    PostRemoteKeyEntity(
+                                        PostRemoteKeyEntity.KeyType.AFTER,
+                                        body.first().id
+                                    ),
+                                    PostRemoteKeyEntity(
+                                        PostRemoteKeyEntity.KeyType.BEFORE,
+                                        body.last().id
+                                    )
                                 )
                             )
-                        )
+                        } else {
+                            postRemoteKeyDAO.save(
+                                listOf(
+                                    PostRemoteKeyEntity(
+                                        PostRemoteKeyEntity.KeyType.AFTER,
+                                        body.first().id
+                                    )
+                                )
+                            )
+
+                        }
                     }
 
                     LoadType.PREPEND -> {
