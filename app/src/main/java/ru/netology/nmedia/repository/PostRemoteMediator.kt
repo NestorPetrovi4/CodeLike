@@ -57,7 +57,7 @@ class PostRemoteMediator(
             appDB.withTransaction {
                 when (loadType) {
                     LoadType.REFRESH -> {
-                        if (id != null) {
+                        if (id == null) {
                             postRemoteKeyDAO.save(
                                 listOf(
                                     PostRemoteKeyEntity(
