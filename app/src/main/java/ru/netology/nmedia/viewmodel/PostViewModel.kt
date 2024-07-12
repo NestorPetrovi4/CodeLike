@@ -42,18 +42,6 @@ class PostViewModel @Inject constructor(
     val baseUrlImageAvatar = repository.getBASE_URL() + "/avatars/"
     val baseUrlImage = repository.getBASE_URL() + "/media/"
 
-//    val data: LiveData<FeedModel> = appAuth
-//        .state
-//        .flatMapLatest { auth ->
-//            repository.data
-//                .map { posts ->
-//                    FeedModel(
-//                        posts.map { it.copy(ownerByMe = it.authorId == auth?.id) },
-//                        empty = posts.isEmpty()
-//                    )
-//                }
-//        }.asLiveData(Dispatchers.Default)
-
     val data: Flow<PagingData<Post>> = appAuth.state
         .flatMapLatest {auth ->
         repository.data

@@ -11,4 +11,7 @@ import ru.netology.nmedia.db.AppDB
 object DAOModule {
     @Provides
     fun providePostDao(db: AppDB): PostDAO = db.postDAO()
+
+    @Provides
+    fun providePostRemoteKeyDao(db: AppDB): PostRemoteKeyDAO = db.postRemoteKeyDAO()
 }
