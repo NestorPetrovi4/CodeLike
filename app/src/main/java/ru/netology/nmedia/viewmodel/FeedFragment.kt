@@ -178,9 +178,7 @@ class FeedFragment : Fragment() {
 
         binding.swiperFresh.setOnRefreshListener {
             binding.navBar.isVisible = false
-            //viewModel.loadPosts()
             adapter.refresh()
-            //binding.swiperFresh.isRefreshing = false
         }
 
         lifecycleScope.launch {
