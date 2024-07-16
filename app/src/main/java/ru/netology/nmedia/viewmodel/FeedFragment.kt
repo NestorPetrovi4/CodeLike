@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
+import ru.netology.nmedia.adapter.PostLoadingStateAdapter
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
@@ -100,7 +101,10 @@ class FeedFragment : Fragment() {
                 }
             }
         }, viewModel.baseUrlImageAvatar, viewModel.baseUrlImage)
-        binding.list.adapter = adapter
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter { adapter.retry() },
+            footer = PostLoadingStateAdapter { adapter.retry() }
+        )
         binding.navBar.isVisible = false
         binding.ViewNewPosts.isVisible = false
 //        viewModel.data.observe(viewLifecycleOwner) { state ->
@@ -178,14 +182,19 @@ class FeedFragment : Fragment() {
 
         binding.swiperFresh.setOnRefreshListener {
             binding.navBar.isVisible = false
-            adapter.refresh()
+            lifecycleScope.launch {
+                adapter.loadStateFlow.collectLatest {
+                    if(it.refresh is LoadState.NotLoading) adapter.refresh()
+                }
+            }
         }
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 adapter.loadStateFlow.collectLatest {
                     binding.swiperFresh.isRefreshing =
-                        it.refresh is LoadState.Loading || it.append is LoadState.Loading || it.prepend is LoadState.Loading
+                        it.refresh is LoadState.Loading && it.append !is LoadState.Loading
+                                && it.prepend !is LoadState.Loading
                 }
             }
         }

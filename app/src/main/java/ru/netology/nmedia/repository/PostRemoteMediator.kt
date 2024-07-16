@@ -38,7 +38,11 @@ class PostRemoteMediator(
                 }
 
                 LoadType.PREPEND -> {
-                    return MediatorResult.Success(endOfPaginationReached = true)
+                    if (id == null) {
+                        return MediatorResult.Success(endOfPaginationReached = true)
+                    } else {
+                        serviceAPI.getAfter(id, state.config.pageSize)
+                    }
                 }
 
                 LoadType.APPEND -> {
