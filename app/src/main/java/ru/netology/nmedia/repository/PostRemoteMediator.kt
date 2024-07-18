@@ -2,6 +2,7 @@ package ru.netology.nmedia.repository
 
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
+import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
@@ -109,8 +110,14 @@ class PostRemoteMediator(
 
                 postDAO.save(body.map { PostEntity.fromDTO(it) })
             }
+            when (loadType) {
+                LoadType.PREPEND -> return MediatorResult.Success(true)
+                LoadType.REFRESH -> return MediatorResult.Success(false)
+                else -> {
+                    return MediatorResult.Success(body.isEmpty())
+                }
+            }
 
-            return MediatorResult.Success(body.isEmpty())
         } catch (e: IOException) {
             return MediatorResult.Error(e)
         }
